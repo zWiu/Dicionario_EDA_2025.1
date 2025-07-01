@@ -58,7 +58,7 @@ public:
 
     // Imprime os elementos da árvore AVL em ordem simétrica (in-order).
     // A travessia é feita de forma iterativa, utilizando uma pilha para simular
-    // a recursão e visitar os nós na ordem: esquerda → raiz → direita.
+    // a recursão e visitar os nós na ordem: esquerda -> raiz -> direita.
     void show();
 
     // Destrutor da AVL
