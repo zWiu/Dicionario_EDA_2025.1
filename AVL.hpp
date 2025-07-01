@@ -1,6 +1,7 @@
 #ifndef AVL_HPP
 #define AVL_HPP
-#include <string>
+#include <iostream>
+#include <stack>
 
 template <typename T>
 struct Node
@@ -53,6 +54,11 @@ public:
 
     // Exibe a árvore AVL em formato textual.
     // Mostra a estrutura da árvore, útil para depuração
+    void show_tree();
+
+    // Imprime os elementos da árvore AVL em ordem simétrica (in-order).
+    // A travessia é feita de forma iterativa, utilizando uma pilha para simular
+    // a recursão e visitar os nós na ordem: esquerda → raiz → direita.
     void show();
 
     // Destrutor da AVL
@@ -107,18 +113,28 @@ private:
     // Libera a memória utilizada pela subárvore.
     Node<T> *clear(Node<T> *node);
 
+    // Realiza a cópia profunda de uma subárvore AVL a partir de um nó dado.
+    // Cria novos nós replicando as chaves e alturas da estrutura original,
+    // preservando o formato e os valores da árvore.
     Node<T> *copy(Node<T> *node);
+
+    // Incrementa o contador de comparações durante as operações da árvore.
+    // Retorna verdadeiro para permitir seu uso dentro de expressões condicionais
+    // sem interferir na lógica de decisão.
+    bool cont_comp();
 
     // Exibe a estrutura da árvore a partir de um nó.
     // Mostra visualmente os ramos e subárvores.
-    void show(Node<T> *node, std::string heranca);
+    void show_tree(Node<T> *node, std::string heranca);
 };
 
 template <typename T>
-AVL<T>::AVL() : m_root{nullptr} {}
+AVL<T>::AVL() 
+:m_root{nullptr}, cont_comparator{0}, cont_rotation{0} {}
 
 template <typename T>
-AVL<T>::AVL(const AVL<T> &avl) :m_root{copy(avl.m_root)} {}
+AVL<T>::AVL(const AVL<T> &avl) 
+:m_root{copy(avl.m_root)}, cont_comparator{avl.cont_comparator}, cont_rotation{avl.cont_rotation} {}
 
 template <typename T>
 void AVL<T>::insert(T key)
@@ -139,9 +155,36 @@ bool AVL<T>::empty()
 }
 
 template <typename T>
-void AVL<T>::show()
+void AVL<T>::show_tree()
 {
     show(m_root, "");
+}
+
+template <typename T>
+void AVL<T>::show()
+{
+    std::cout << "AVL: ";
+    Node<T> *aux = m_root;
+    std::stack<Node<T> *> p;
+    while (!p.empty() || aux != nullptr)
+    {
+        if (aux != nullptr)
+        {
+            p.push(aux);
+            aux = aux->left;
+        }
+        else
+        {
+            aux = p.top();
+            p.pop();
+            std::cout << aux->key;
+            aux = aux->right;
+            if (!p.empty() || aux != nullptr)
+                std::cout << ", ";
+            else 
+                std::cout << std::endl;
+        }
+    }
 }
 
 template <typename T>
@@ -174,7 +217,7 @@ Node<T> *AVL<T>::left_rotation(Node<T> *pai)
 
     pai->height = 1 + std::max(_height(pai->left), _height(pai->right));
     filho->height = 1 + std::max(_height(filho->left), _height(filho->right));
-
+    cont_rotation++;
     return filho;
 }
 
@@ -187,7 +230,7 @@ Node<T> *AVL<T>::right_rotation(Node<T> *pai)
 
     pai->height = 1 + std::max(_height(pai->left), _height(pai->right));
     filho->height = 1 + std::max(_height(filho->left), _height(filho->right));
-
+    cont_rotation++;
     return filho;
 }
 
@@ -195,19 +238,19 @@ template <typename T>
 Node<T> *AVL<T>::fixup_node(Node<T> *node, T key)
 {
     int bal = balance(node);
-    if (bal == -2 && key < node->left->key)
+    if (bal == -2 && key < node->left->key && cont_comp())
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (bal == -2 && key > node->left->key)
+    else if (bal == -2 && key > node->left->key && cont_comp())
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);
     }
     // Rotação à esquerda
-    else if (bal == 2 && key > node->right->key)
+    else if (bal == 2 && key > node->right->key && cont_comp())
         return left_rotation(node);
     // Rotação dupla à esquerda
-    else if (bal == 2 && key < node->right->key)
+    else if (bal == 2 && key < node->right->key && cont_comp())
     {
         node->right = right_rotation(node->right);
         return left_rotation(node);
@@ -223,11 +266,11 @@ Node<T> *AVL<T>::insert(Node<T> *node, T key)
 {
     if (node == nullptr)
         return new Node<T>(key, 1, nullptr, nullptr);
-    if (key == node->key)
+    if (key == node->key && cont_comp())
         return node;
-    if (key < node->key)
+    if (key < node->key && cont_comp())
         node->left = insert(node->left, key);
-    else
+    else if(cont_comp())
         node->right = insert(node->right, key);
 
     node = fixup_node(node, key);
@@ -240,19 +283,19 @@ Node<T> *AVL<T>::fixup_deletion(Node<T> *node)
 {
     int bal = balance(node);
     // Rotação à esquerda
-    if (bal == 2 && balance(node->right) >= 0)
+    if (bal == 2 && balance(node->right) >= 0 && cont_comp())
         return left_rotation(node);
     // Rotação dupla à esquerda
-    else if (bal == 2 && balance(node->right) < 0)
+    else if (bal == 2 && balance(node->right) < 0 && cont_comp())
     {
         node->right = right_rotation(node->right);
         return left_rotation(node);
     }
     // Rotação à direita
-    else if (bal == -2 && balance(node->left) <= 0)
+    else if (bal == -2 && balance(node->left) <= 0 && cont_comp())
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (bal == -2 && balance(node->left) < 0)
+    else if (bal == -2 && balance(node->left) < 0 && cont_comp())
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);
@@ -282,9 +325,9 @@ Node<T> *AVL<T>::erase(Node<T> *node, T key)
 {
     if (node == nullptr)
         return nullptr;
-    if (key < node->key)
+    if (key < node->key && cont_comp())
         node->left = erase(node->left, key);
-    else if (key > node->key)
+    else if (key > node->key && cont_comp())
         node->right = erase(node->right, key);
     else if (node->right == nullptr)
     {
@@ -326,7 +369,14 @@ Node<T> *AVL<T>::copy(Node<T> *node)
 }
 
 template <typename T>
-void AVL<T>::show(Node<T> *node, std::string heranca)
+bool AVL<T>::cont_comp()
+{
+    cont_comparator++;
+    return true;
+}
+
+template <typename T>
+void AVL<T>::show_tree(Node<T> *node, std::string heranca)
 {
     if (node != nullptr && (node->left != nullptr || node->right != nullptr))
         show(node->right, heranca + "r");

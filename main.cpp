@@ -60,7 +60,6 @@ int main(){
     }
     Pares temp(4, "E");
 
-
     AVL<Pares> arvore2(arvore);
 
     arvore.show();
