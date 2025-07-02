@@ -2,26 +2,29 @@
 #define AVL_HPP
 #include <iostream>
 #include <stack>
+#include <utility>
+#include <exception>
 
-template <typename T>
+template <typename Key, typename Value>
 struct Node
 {
-    T key;       // Chave do tipo T do nó
+    std::pair<Key, Value> value; // Par com chave e valor do nó
     int height;  // Altura do nó
     Node *left;  // Filho esquerdo do nó, menor
     Node *right; // Filho direito do nó, maior
 
-    Node(T key, int height, Node<T> *left, Node<T> *right)
+    Node(Key k, Value v, int height, Node<Key, Value> *left, Node<Key, Value> *right)
     {
-        this->key = key;
+        this->value.first = k;
+        this->value.second = v;
         this->height = height;
         this->left = left;
         this->right = right;
     }
 
-    Node<T> &operator=(const Node<T> &node)
+    Node<Key, Value> &operator=(const Node<Key, Value> &node)
     {
-        this->key = node.key;
+        this->value = node.value;
         this->height = node.height;
         this->left = node.left;
         this->right = node.right;
@@ -30,7 +33,7 @@ struct Node
     }
 };
 
-template <typename T>
+template <typename Key, typename Value>
 class AVL
 {
 public:
@@ -38,15 +41,19 @@ public:
     AVL();
 
     // Construtor de cópia da AVL
-    AVL(const AVL<T> &avl);
+    AVL(const AVL<Key, Value> &avl);
 
-    // Insere uma chave na árvore AVL.
+    // Insere um valor na árvore AVL.
     // A chave é posicionada de forma a manter a ordem e o balanceamento da árvore.
-    void insert(T key);
+    void insert(Key key, Value value);
 
     // Remove uma chave da árvore AVL.
     // Caso a chave não esteja presente, nenhuma operação é realizada.
-    void erase(T key);
+    void erase(Key key);
+
+    // Recebe uma key
+    // Atualiza o valor associado a key, caso não exista, lança uma excessão
+    void update(Key key, Value value);
 
     // Verifica se a árvore está vazia.
     // Retorna true se não houver elementos, false caso contrário.
@@ -61,62 +68,77 @@ public:
     // a recursão e visitar os nós na ordem: esquerda -> raiz -> direita.
     void show();
 
+    // Recebe uma key
+    // Retorna true se e somente se a chave consta na árvore 
+    // Retorna false caso contrário
+    bool contains(Key key);
+
+    // Limpa a árvore
+    void clear();
+
+    // Retorna o contador de comparações de chave
+    size_t get_cont_comparator() const;
+
+    // Retorna o contador de rotaçãoes
+    size_t get_cont_rotation() const;
+
     // Destrutor da AVL
     ~AVL();
 
 private:
     // Raiz do nó
-    Node<T> *m_root;
+    Node<Key, Value> *m_root;
 
     // Contador de comparações, durante a inserção
     size_t cont_comparator;
 
     // Contador de rotações
     size_t cont_rotation;
+
     // Retorna a altura de um nó.
     // Nós nulos têm altura 0.
-    int _height(Node<T> *node);
+    int _height(Node<Key, Value> *node);
 
     // Calcula o fator de balanceamento de um nó.
     // É a diferença entre a altura da subárvore direita e da esquerda.
-    int balance(Node<T> *node);
+    int balance(Node<Key, Value> *node);
 
     // Realiza uma rotação simples à esquerda.
     // Utilizada para rebalancear a árvore após inserções ou remoções.
-    Node<T> *left_rotation(Node<T> *p);
+    Node<Key, Value> *left_rotation(Node<Key, Value> *p);
 
     // Realiza uma rotação simples à direita.
     // Utilizada para rebalancear a árvore após inserções ou remoções.
-    Node<T> *right_rotation(Node<T> *p);
+    Node<Key, Value> *right_rotation(Node<Key, Value> *p);
 
     // Corrige o balanceamento de um nó após inserção.
     // Aplica rotações simples ou duplas conforme necessário.
-    Node<T> *fixup_node(Node<T> *node, T key);
+    Node<Key, Value> *fixup_node(Node<Key, Value> *node, Key key);
 
     // Insere uma chave na árvore a partir de um nó dado.
     // Reorganiza os nós e corrige o balanceamento após a inserção
-    Node<T> *insert(Node<T> *node, T key);
+    Node<Key, Value> *insert(Node<Key, Value> *node, Key key, Value value);
 
     // Corrige o balanceamento da árvore após a remoção de um nó.
     // Aplica rotações para manter a propriedade AVL
-    Node<T> *fixup_deletion(Node<T> *node);
+    Node<Key, Value> *fixup_deletion(Node<Key, Value> *node);
 
     // Remove o sucessor in-order de um nó na árvore.
     // Substitui o nó removido pelo menor valor da subárvore direita.
-    Node<T> *remove_successor(Node<T> *p, Node<T> *node);
+    Node<Key, Value> *remove_successor(Node<Key, Value> *p, Node<Key, Value> *node);
 
     // Remove uma chave da árvore a partir de um nó dado.
     // Reorganiza os nós e corrige o balanceamento após a remoção.
-    Node<T> *erase(Node<T> *node, T key);
+    Node<Key, Value> *erase(Node<Key, Value> *node, Key key);
 
     // Remove todos os nós da árvore a partir de um nó dado.
     // Libera a memória utilizada pela subárvore.
-    Node<T> *clear(Node<T> *node);
+    Node<Key, Value> *clear(Node<Key, Value> *node);
 
     // Realiza a cópia profunda de uma subárvore AVL a partir de um nó dado.
     // Cria novos nós replicando as chaves e alturas da estrutura original,
     // preservando o formato e os valores da árvore.
-    Node<T> *copy(Node<T> *node);
+    Node<Key, Value> *copy(Node<Key, Value> *node);
 
     // Incrementa o contador de comparações durante as operações da árvore.
     // Retorna verdadeiro para permitir seu uso dentro de expressões condicionais
@@ -125,47 +147,70 @@ private:
 
     // Exibe a estrutura da árvore a partir de um nó.
     // Mostra visualmente os ramos e subárvores.
-    void show_tree(Node<T> *node, std::string heranca);
+    void show_tree(Node<Key, Value> *node, std::string heranca);
 };
 
-template <typename T>
-AVL<T>::AVL() 
+template <typename Key, typename Value>
+AVL<Key, Value>::AVL() 
 :m_root{nullptr}, cont_comparator{0}, cont_rotation{0} {}
 
-template <typename T>
-AVL<T>::AVL(const AVL<T> &avl) 
+template <typename Key, typename Value>
+AVL<Key, Value>::AVL(const AVL<Key, Value> &avl) 
 :m_root{copy(avl.m_root)}, cont_comparator{avl.cont_comparator}, cont_rotation{avl.cont_rotation} {}
 
-template <typename T>
-void AVL<T>::insert(T key)
+template <typename Key, typename Value>
+void AVL<Key, Value>::insert(Key key, Value value)
 {
-    m_root = insert(m_root, key);
+    m_root = insert(m_root, key, value);
 }
 
-template <typename T>
-void AVL<T>::erase(T key)
+template <typename Key, typename Value>
+void AVL<Key, Value>::erase(Key key)
 {
     m_root = erase(m_root, key);
 }
 
-template <typename T>
-bool AVL<T>::empty()
+template <typename Key, typename Value>
+void AVL<Key, Value>::update(Key key, Value value)
+{
+    Node<Key, Value> *atual = m_root;
+
+    while(atual != nullptr)
+    {
+        if(atual->value.first > key && cont_comp())
+            atual = atual->left;
+        else if(atual->value.first < key && cont_comp())
+            atual = atual->right;
+        else{
+            atual->value.second = value;
+            break;
+        }
+    }
+
+    if(atual == nullptr)
+    {
+        throw std::invalid_argument("invalid key on update");
+    }
+}
+
+template <typename Key, typename Value>
+bool AVL<Key, Value>::empty()
 {
     return m_root == nullptr;
 }
 
-template <typename T>
-void AVL<T>::show_tree()
+template <typename Key, typename Value>
+void AVL<Key, Value>::show_tree()
 {
-    show(m_root, "");
+    show_tree(m_root, "");
 }
 
-template <typename T>
-void AVL<T>::show()
+template <typename Key, typename Value>
+void AVL<Key, Value>::show()
 {
     std::cout << "AVL: ";
-    Node<T> *aux = m_root;
-    std::stack<Node<T> *> p;
+    Node<Key, Value> *aux = m_root;
+    std::stack<Node<Key, Value> *> p;
     while (!p.empty() || aux != nullptr)
     {
         if (aux != nullptr)
@@ -177,7 +222,7 @@ void AVL<T>::show()
         {
             aux = p.top();
             p.pop();
-            std::cout << aux->key;
+            std::cout << "(" << aux->value.first << ", " <<  aux->value.second <<")";
             aux = aux->right;
             if (!p.empty() || aux != nullptr)
                 std::cout << ", ";
@@ -187,14 +232,50 @@ void AVL<T>::show()
     }
 }
 
-template <typename T>
-AVL<T>::~AVL()
+template <typename Key, typename Value>
+bool AVL<Key, Value>::contains(Key key)
+{
+    Node<Key, Value> *atual = m_root;
+
+    while(atual != nullptr)
+    {
+        if(atual->value.first > key && cont_comp())
+            atual = atual->left;
+        else if(atual->value.first < key && cont_comp())
+            atual = atual->right;
+        else
+            return true;
+    }
+
+    return false;
+}
+
+template <typename Key, typename Value>
+void AVL<Key, Value>::clear()
 {
     m_root = clear(m_root);
 }
 
-template <typename T>
-int AVL<T>::_height(Node<T> *node)
+template <typename Key, typename Value>
+size_t AVL<Key, Value>::get_cont_comparator() const
+{
+    return cont_comparator;
+}
+
+template <typename Key, typename Value>
+size_t AVL<Key, Value>::get_cont_rotation() const
+{
+    return cont_rotation;
+}
+
+template <typename Key, typename Value>
+AVL<Key, Value>::~AVL()
+{
+    m_root = clear(m_root);
+}
+
+template <typename Key, typename Value>
+int AVL<Key, Value>::_height(Node<Key, Value> *node)
 {
     if (node == nullptr)
         return 0;
@@ -202,16 +283,16 @@ int AVL<T>::_height(Node<T> *node)
         return node->height;
 }
 
-template <typename T>
-int AVL<T>::balance(Node<T> *node)
+template <typename Key, typename Value>
+int AVL<Key, Value>::balance(Node<Key, Value> *node)
 {
     return _height(node->right) - _height(node->left);
 }
 
-template <typename T>
-Node<T> *AVL<T>::left_rotation(Node<T> *pai)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::left_rotation(Node<Key, Value> *pai)
 {
-    Node<T> *filho = pai->right;
+    Node<Key, Value> *filho = pai->right;
     pai->right = filho->left;
     filho->left = pai;
 
@@ -221,10 +302,10 @@ Node<T> *AVL<T>::left_rotation(Node<T> *pai)
     return filho;
 }
 
-template <typename T>
-Node<T> *AVL<T>::right_rotation(Node<T> *pai)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::right_rotation(Node<Key, Value> *pai)
 {
-    Node<T> *filho = pai->left;
+    Node<Key, Value> *filho = pai->left;
     pai->left = filho->right;
     filho->right = pai;
 
@@ -234,23 +315,23 @@ Node<T> *AVL<T>::right_rotation(Node<T> *pai)
     return filho;
 }
 
-template <typename T>
-Node<T> *AVL<T>::fixup_node(Node<T> *node, T key)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::fixup_node(Node<Key, Value> *node, Key key)
 {
     int bal = balance(node);
-    if (bal == -2 && key < node->left->key && cont_comp())
+    if (bal == -2 && key < node->left->value.first && cont_comp())
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (bal == -2 && key > node->left->key && cont_comp())
+    else if (bal == -2 && key > node->left->value.first && cont_comp())
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);
     }
     // Rotação à esquerda
-    else if (bal == 2 && key > node->right->key && cont_comp())
+    else if (bal == 2 && key > node->right->value.first && cont_comp())
         return left_rotation(node);
     // Rotação dupla à esquerda
-    else if (bal == 2 && key < node->right->key && cont_comp())
+    else if (bal == 2 && key < node->right->value.first && cont_comp())
     {
         node->right = right_rotation(node->right);
         return left_rotation(node);
@@ -261,25 +342,25 @@ Node<T> *AVL<T>::fixup_node(Node<T> *node, T key)
     return node;
 }
 
-template <typename T>
-Node<T> *AVL<T>::insert(Node<T> *node, T key)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::insert(Node<Key, Value> *node, Key key, Value value)
 {
     if (node == nullptr)
-        return new Node<T>(key, 1, nullptr, nullptr);
-    if (key == node->key && cont_comp())
+        return new Node<Key, Value>(key, value, 1, nullptr, nullptr);
+    if (key == node->value.first && cont_comp())
         return node;
-    if (key < node->key && cont_comp())
-        node->left = insert(node->left, key);
+    if (key < node->value.first && cont_comp())
+        node->left = insert(node->left, key, value);
     else if(cont_comp())
-        node->right = insert(node->right, key);
+        node->right = insert(node->right, key, value);
 
     node = fixup_node(node, key);
 
     return node;
 }
 
-template <typename T>
-Node<T> *AVL<T>::fixup_deletion(Node<T> *node)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::fixup_deletion(Node<Key, Value> *node)
 {
     int bal = balance(node);
     // Rotação à esquerda
@@ -304,13 +385,13 @@ Node<T> *AVL<T>::fixup_deletion(Node<T> *node)
     return node;
 }
 
-template <typename T>
-Node<T> *AVL<T>::remove_successor(Node<T> *p, Node<T> *node)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::remove_successor(Node<Key, Value> *p, Node<Key, Value> *node)
 {
     if (node->left == nullptr)
     {
-        p->key = node->key;
-        Node<T> *aux = node->right;
+        p->value = node->value;
+        Node<Key, Value> *aux = node->right;
         delete node;
         return aux;
     }
@@ -320,18 +401,18 @@ Node<T> *AVL<T>::remove_successor(Node<T> *p, Node<T> *node)
     return node;
 }
 
-template <typename T>
-Node<T> *AVL<T>::erase(Node<T> *node, T key)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::erase(Node<Key, Value> *node, Key key)
 {
     if (node == nullptr)
         return nullptr;
-    if (key < node->key && cont_comp())
+    if (key < node->value.first && cont_comp())
         node->left = erase(node->left, key);
-    else if (key > node->key && cont_comp())
+    else if (key > node->value.first && cont_comp())
         node->right = erase(node->right, key);
     else if (node->right == nullptr)
     {
-        Node<T> *aux = node->left;
+        Node<Key, Value> *aux = node->left;
         delete node;
         return aux;
     }
@@ -342,8 +423,8 @@ Node<T> *AVL<T>::erase(Node<T> *node, T key)
     return node;
 }
 
-template <typename T>
-Node<T> *AVL<T>::clear(Node<T> *node)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::clear(Node<Key, Value> *node)
 {
     if (node != nullptr)
     {
@@ -355,31 +436,31 @@ Node<T> *AVL<T>::clear(Node<T> *node)
     return nullptr;
 }
 
-template <typename T>
-Node<T> *AVL<T>::copy(Node<T> *node)
+template <typename Key, typename Value>
+Node<Key, Value> *AVL<Key, Value>::copy(Node<Key, Value> *node)
 {
     if (node == nullptr)
         return nullptr;
 
-    Node<T> *aux = new Node<T>(node->key, node->height, nullptr, nullptr);
+    Node<Key, Value> *aux = new Node<Key, Value>(node->value.first, node->value.second, node->height, nullptr, nullptr);
     aux->left = copy(node->left);
     aux->right = copy(node->right);
 
     return aux;
 }
 
-template <typename T>
-bool AVL<T>::cont_comp()
+template <typename Key, typename Value>
+bool AVL<Key, Value>::cont_comp()
 {
     cont_comparator++;
     return true;
 }
 
-template <typename T>
-void AVL<T>::show_tree(Node<T> *node, std::string heranca)
+template <typename Key, typename Value>
+void AVL<Key, Value>::show_tree(Node<Key, Value> *node, std::string heranca)
 {
     if (node != nullptr && (node->left != nullptr || node->right != nullptr))
-        show(node->right, heranca + "r");
+        show_tree(node->right, heranca + "r");
     for (int i = 0; i < (int)heranca.size() - 1; i++)
         std::cout << (heranca[i] != heranca[i + 1] ? "│   " : "    ");
     if (heranca != "")
@@ -389,9 +470,9 @@ void AVL<T>::show_tree(Node<T> *node, std::string heranca)
         std::cout << "#" << std::endl;
         return;
     }
-    std::cout << node->key << std::endl;
+    std::cout << node->value.first << ", " << node->value.second << std::endl;
     if (node != nullptr && (node->left != nullptr || node->right != nullptr))
-        show(node->left, heranca + "l");
+        show_tree(node->left, heranca + "l");
 }
 
 #endif

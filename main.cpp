@@ -3,16 +3,19 @@
 
 using namespace std;
 
-struct Pares{
+struct Pares
+{
     int k;
     string v;
-    
-    Pares(int k = 0, string v = ""){
+
+    Pares(int k = 0, string v = "")
+    {
         this->k = k;
         this->v = v;
     }
-    
-    Pares(const Pares &p){
+
+    Pares(const Pares &p)
+    {
         this->k = p.k;
         this->v = p.v;
     }
@@ -25,11 +28,13 @@ struct Pares{
         return *this;
     }
 
-    bool operator<(const Pares &p){
+    bool operator<(const Pares &p)
+    {
         return this->v < p.v;
     }
 
-    bool operator>(const Pares &p){
+    bool operator>(const Pares &p)
+    {
         return this->v > p.v;
     }
 
@@ -43,16 +48,20 @@ struct Pares{
         return this->v != p.v;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Pares& p) {
+    friend std::ostream &operator<<(std::ostream &os, const Pares &p)
+    {
         os << "(" << p.k << ", " << p.v << ")";
         return os;
     }
 };
 
-namespace std {
+namespace std
+{
     template <>
-    struct hash<Pares> {
-        size_t operator()(const Pares& p) const {
+    struct hash<Pares>
+    {
+        size_t operator()(const Pares &p) const
+        {
             return hash<int>()(p.k) ^ (hash<std::string>()(p.v) << 1);
         }
     };
@@ -64,23 +73,24 @@ void testChainedHashTable()
 {
     ChainedHashTable<Pares, int> tabela(7, 1.5);
 
-    Pares p1(1, "A");
-    Pares p2(2, "B");
-    Pares p3(3, "C");
-    Pares p4(4, "D");
+    Pares p1(10, "A");
+    Pares p2(7, "B");
+    Pares p3(15, "C");
+    Pares p4(43, "D");
     Pares p5(5, "E");
+    cout << "\n***TESTE DA CHAINED HASH TABLE***" << endl;
 
     // Teste de adição
     cout << "Adicionando elementos:" << endl;
-    if(tabela.add(p1, 10))
-        cout << "Adicionado " << p1 << ", " << 10 << endl; 
-    if(tabela.add(p2, 20))
+    if (tabela.add(p1, 2))
+        cout << "Adicionado " << p1 << ", " << 10 << endl;
+    if (tabela.add(p2, 20))
         cout << "Adicionado " << p2 << ", " << 20 << endl;
-    if(tabela.add(p3, 30))
+    if (tabela.add(p3, 30))
         cout << "Adicionado " << p3 << ", " << 30 << endl;
-    if(tabela.add(p4, 40))
+    if (tabela.add(p4, 40))
         cout << "Adicionado " << p4 << ", " << 40 << endl;
-    if(tabela.add(p5, 50))
+    if (tabela.add(p5, 50))
         cout << "Adicionado " << p5 << ", " << 50 << endl;
 
     // Tamanho e fator de carga
@@ -91,9 +101,12 @@ void testChainedHashTable()
     cout << "\nContém p3? " << (tabela.contains(p3) ? "Sim" : "Não") << endl;
 
     // Teste do método at
-    try {
+    try
+    {
         cout << "Valor associado a p2: " << tabela.at(p2) << endl;
-    } catch (const std::exception& e) {
+    }
+    catch (const exception &e)
+    {
         cout << e.what() << endl;
     }
 
@@ -128,7 +141,91 @@ void testChainedHashTable()
     cout << "Tabela está vazia? " << (tabela.empty() ? "Sim" : "Não") << endl;
 }
 
-int main(){
-    
+void testAVL()
+{
+    AVL<Pares, int> arvore;
+
+    Pares p1(10, "A");
+    Pares p2(7, "B");
+    Pares p3(15, "C");
+    Pares p4(43, "D");
+    Pares p5(5, "E");
+    cout << "***TESTE DA AVL***" << endl;
+
+    // Teste de adição
+    cout << "Adicionando elementos:" << endl;
+    arvore.insert(p1, 2);
+    cout << "Adicionado " << p1 << ", " << 10 << endl;
+    arvore.insert(p2, 20);
+    cout << "Adicionado " << p2 << ", " << 20 << endl;
+    arvore.insert(p3, 30);
+    cout << "Adicionado " << p3 << ", " << 30 << endl;
+    arvore.insert(p4, 40);
+    cout << "Adicionado " << p4 << ", " << 40 << endl;
+    arvore.insert(p5, 50);
+    cout << "Adicionado " << p5 << ", " << 50 << endl;
+
+    cout << "Criando cópia da primeira árvore..." << endl;
+    AVL<Pares, int> arvore_copia(arvore);
+
+    // Estrutura da árvore
+    arvore.show_tree();
+
+    // Teste de remoção
+    cout << "\nRemovendo elementos:" << endl;
+    arvore.erase(p3);
+    cout << "Elemento " << p3 << " removido da árvore 1" << endl;
+    arvore_copia.erase(p2);
+    cout << "Elemento " << p2 << " removido da árvore 2" << endl;
+
+    // Teste do construtor de cópia
+    cout << "\nResultado das remoções: " << endl;
+    cout << "Árvore 1:" << endl;
+    arvore.show();
+    cout << "Árvore 2:" << endl;
+    arvore_copia.show();
+
+    // Teste de contains
+    cout << "Contém " << p1 << " na árvore 1? " << (arvore.contains(p1) ? "Sim" : "Não") << endl;
+    cout << "Contém " << p3 << " na árvore 1? " << (arvore.contains(p3) ? "Sim" : "Não") << endl;
+
+    // Teste de update
+    cout << "\nTestando a função de update" << endl;
+    arvore.update(p2, 50);
+    cout << "Elemento " << p2 << " atualizado na árvore 1" << endl;
+    arvore.update(p1, 130);
+    cout << "Elemento " << p1 << " atualizado na árvore 1" << endl;
+    try
+    {
+        arvore.update(p3, 70);
+    }
+    catch (const exception &e)
+    {
+        cout << e.what() << endl;
+    }
+    cout << "Tentativa de atualização do elemento " << p3 << endl;
+
+    cout << "\nResultado das atualizações: " << endl;
+    cout << "Árvore 1:" << endl;
+    arvore.show();
+
+    // Teste de contadores
+    cout << "\nContadores da árvore 1" << endl;
+    cout << "Contador de comparações feitas nas chaves: " << arvore.get_cont_comparator() << endl;
+    cout << "Contador de rotações realizadas na árvore: " << arvore.get_cont_rotation() << endl;
+
+    cout << "\nContadores da árvore 2" << endl;
+    cout << "Contador de comparações feitas nas chaves: " << arvore_copia.get_cont_comparator() << endl;
+    cout << "Contador de rotações realizadas na árvore: " << arvore_copia.get_cont_rotation() << endl;
+
+    // Teste de clear
+    cout << "\nLimpando a arvore..." << endl;
+    arvore.clear();
+    cout << "Árvore está vazia? " << (arvore.empty() ? "Sim" : "Não") << endl;
+}
+
+int main()
+{
+    testAVL();
     testChainedHashTable();
 }

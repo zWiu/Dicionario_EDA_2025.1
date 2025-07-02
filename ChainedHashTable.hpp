@@ -232,6 +232,8 @@ void ChainedHashTable<Key, Value, Hash>::clear()
 {
     m_table.clear();
     m_table.resize(m_table_size);
+    cont_collisions = 0;
+    cont_comparator = 0;
     m_number_of_elements = 0;
 }
 
@@ -363,10 +365,6 @@ size_t ChainedHashTable<Key, Value, Hash>::get_cont_collisions() const
 template <typename Key, typename Value, typename Hash>
 ChainedHashTable<Key, Value, Hash>::~ChainedHashTable()
 {
-    std::cout << "Destruindo a Tabela Hash de encadeamento exterior..." << std::endl;
-    std::cout << "Contador de comparações: " << cont_comparator << std::endl;
-    std::cout << "Contador de colisões: " << cont_collisions << std::endl;
-    
     m_table.clear();
     m_table_size = 0;
     m_number_of_elements = 0;
