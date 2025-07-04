@@ -1,5 +1,6 @@
 #include <iostream>
 #include <exception>
+#include <windows.h>
 
 using namespace std;
 
@@ -69,6 +70,7 @@ namespace std
 
 #include "ChainedHashTable.hpp"
 #include "AVL.hpp"
+#include "RBT.hpp"
 void testChainedHashTable()
 {
     ChainedHashTable<Pares, int> tabela(7, 1.5);
@@ -224,8 +226,103 @@ void testAVL()
     cout << "Árvore está vazia? " << (arvore.empty() ? "Sim" : "Não") << endl;
 }
 
+void testRBT()
+{
+    RBT<Pares, int> arvore;
+
+    Pares p1(10, "A");
+    Pares p2(7, "B");
+    Pares p3(15, "C");
+    Pares p4(43, "D");
+    Pares p5(5, "E");
+    cout << "***TESTE DA RBT***" << endl;
+
+    // Teste de adição
+    cout << "Adicionando elementos:" << endl;
+    arvore.insert(p1, 2);
+    cout << "Adicionado " << p1 << ", " << 2 << endl;
+    arvore.insert(p2, 20);
+    cout << "Adicionado " << p2 << ", " << 20 << endl;
+    arvore.insert(p3, 30);
+    cout << "Adicionado " << p3 << ", " << 30 << endl;
+    arvore.insert(p4, 40);
+    cout << "Adicionado " << p4 << ", " << 40 << endl;
+    arvore.insert(p5, 50);
+    cout << "Adicionado " << p5 << ", " << 50 << endl;  
+
+    // Teste de cópia
+    RBT<Pares, int> arvore_copia(arvore); 
+
+    // Estrutura da árvore
+    cout << "\nÁrvore 1:" << endl;
+    arvore.show_tree();
+    cout << "Árvore 2:" << endl;
+    arvore_copia.show_tree();
+
+    // Teste de remoção
+    cout << "\nRemovendo elementos:" << endl;
+    arvore.remove(p3);
+    cout << "Elemento " << p3 << " removido da árvore 1" << endl;
+    arvore_copia.remove(p2);
+    cout << "Elemento " << p2 << " removido da árvore 1" << endl;
+
+    // Teste do construtor de cópia
+    cout << "\nResultado das remoções: " << endl;
+    cout << "Árvore 1:" << endl;
+    arvore.show();
+    cout << "Árvore 2:" << endl;
+    arvore_copia.show();
+
+    // Teste de contains
+    cout << "Contém " << p1 << " na árvore 1? " << (arvore.contains(p1) ? "Sim" : "Não") << endl;
+    cout << "Contém " << p3 << " na árvore 1? " << (arvore.contains(p3) ? "Sim" : "Não") << endl;
+
+    // Teste de update
+    cout << "\nTestando a função de update" << endl;
+    arvore.update(p2, 50);
+    cout << "Elemento " << p2 << " atualizado na árvore 1" << endl;
+    arvore.update(p1, 130);
+    cout << "Elemento " << p1 << " atualizado na árvore 1" << endl;
+    try
+    {
+        arvore.update(p3, 70);
+    }
+    catch (const invalid_argument &e)
+    {
+        cout << "Tentativa de atualização do elemento " << p3 << endl;
+    }
+    
+
+    cout << "\nResultado das atualizações: " << endl;
+    cout << "Árvore 1:" << endl;
+    arvore.show();
+    cout << "Árvore 2:" << endl;
+    arvore_copia.show();
+
+    // Teste de contadores
+    cout << "\nContadores da árvore 1" << endl;
+    cout << "Contador de comparações feitas nas chaves: " << arvore.get_cont_comparator() << endl;
+    cout << "Contador de rotações realizadas na árvore: " << arvore.get_cont_rotation() << endl;
+
+    cout << "\nContadores da árvore 2" << endl;
+    cout << "Contador de comparações feitas nas chaves: " << arvore_copia.get_cont_comparator() << endl;
+    cout << "Contador de rotações realizadas na árvore: " << arvore_copia.get_cont_rotation() << endl;
+
+    // Teste de clear
+    cout << "\nLimpando a arvore..." << endl;
+    arvore.clear();
+    cout << "Árvore está vazia? " << (arvore.empty() ? "Sim" : "Não") << endl;
+}
+
 int main()
 {
-    testAVL();
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+
     testChainedHashTable();
+    testAVL();
+    testRBT();
 }

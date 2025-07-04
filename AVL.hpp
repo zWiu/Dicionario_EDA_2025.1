@@ -177,9 +177,9 @@ void AVL<Key, Value>::update(Key key, Value value)
 
     while(atual != nullptr)
     {
-        if(atual->value.first > key && cont_comp())
+        if(cont_comp() && atual->value.first > key )
             atual = atual->left;
-        else if(atual->value.first < key && cont_comp())
+        else if(cont_comp() && atual->value.first < key )
             atual = atual->right;
         else{
             atual->value.second = value;
@@ -239,9 +239,9 @@ bool AVL<Key, Value>::contains(Key key)
 
     while(atual != nullptr)
     {
-        if(atual->value.first > key && cont_comp())
+        if(cont_comp() && atual->value.first > key )
             atual = atual->left;
-        else if(atual->value.first < key && cont_comp())
+        else if(cont_comp() && atual->value.first < key )
             atual = atual->right;
         else
             return true;
@@ -253,6 +253,8 @@ bool AVL<Key, Value>::contains(Key key)
 template <typename Key, typename Value>
 void AVL<Key, Value>::clear()
 {
+    cont_comparator = 0;
+    cont_rotation = 0;
     m_root = clear(m_root);
 }
 
@@ -319,19 +321,19 @@ template <typename Key, typename Value>
 Node<Key, Value> *AVL<Key, Value>::fixup_node(Node<Key, Value> *node, Key key)
 {
     int bal = balance(node);
-    if (bal == -2 && key < node->left->value.first && cont_comp())
+    if (cont_comp() && bal  == -2 && key < node->left->value.first)
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (bal == -2 && key > node->left->value.first && cont_comp())
+    else if (cont_comp() && bal  == -2 && key > node->left->value.first)
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);
     }
     // Rotação à esquerda
-    else if (bal == 2 && key > node->right->value.first && cont_comp())
+    else if (cont_comp() && bal == 2 && key > node->right->value.first)
         return left_rotation(node);
     // Rotação dupla à esquerda
-    else if (bal == 2 && key < node->right->value.first && cont_comp())
+    else if (cont_comp() && bal == 2 && key < node->right->value.first)
     {
         node->right = right_rotation(node->right);
         return left_rotation(node);
@@ -347,11 +349,11 @@ Node<Key, Value> *AVL<Key, Value>::insert(Node<Key, Value> *node, Key key, Value
 {
     if (node == nullptr)
         return new Node<Key, Value>(key, value, 1, nullptr, nullptr);
-    if (key == node->value.first && cont_comp())
+    if (cont_comp() && key == node->value.first )
         return node;
-    if (key < node->value.first && cont_comp())
+    if (cont_comp() && key < node->value.first )
         node->left = insert(node->left, key, value);
-    else if(cont_comp())
+    else
         node->right = insert(node->right, key, value);
 
     node = fixup_node(node, key);
@@ -364,19 +366,19 @@ Node<Key, Value> *AVL<Key, Value>::fixup_deletion(Node<Key, Value> *node)
 {
     int bal = balance(node);
     // Rotação à esquerda
-    if (bal == 2 && balance(node->right) >= 0 && cont_comp())
+    if (cont_comp() && bal == 2 && balance(node->right) >= 0)
         return left_rotation(node);
     // Rotação dupla à esquerda
-    else if (bal == 2 && balance(node->right) < 0 && cont_comp())
+    else if (cont_comp() && bal == 2 && balance(node->right) < 0)
     {
         node->right = right_rotation(node->right);
         return left_rotation(node);
     }
     // Rotação à direita
-    else if (bal == -2 && balance(node->left) <= 0 && cont_comp())
+    else if (cont_comp() && bal == -2 && balance(node->left) <= 0 )
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (bal == -2 && balance(node->left) < 0 && cont_comp())
+    else if (cont_comp() && bal == -2 && balance(node->left) < 0 )
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);
@@ -406,9 +408,9 @@ Node<Key, Value> *AVL<Key, Value>::erase(Node<Key, Value> *node, Key key)
 {
     if (node == nullptr)
         return nullptr;
-    if (key < node->value.first && cont_comp())
+    if (cont_comp() && key < node->value.first)
         node->left = erase(node->left, key);
-    else if (key > node->value.first && cont_comp())
+    else if (cont_comp() && key > node->value.first)
         node->right = erase(node->right, key);
     else if (node->right == nullptr)
     {
