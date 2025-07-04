@@ -1,5 +1,5 @@
-#ifndef HASHTABLE_HPP
-#define HASHTABLE_HPP
+#ifndef OPENADRESSINGHASHTABLE_HPP
+#define OPENADRESSINGHASHTABLE_HPP
 
 #include <iostream>
 #include <exception>
@@ -36,11 +36,11 @@ struct Element
 // colisão por endereçamento aberto
 
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
-class HashTable
+class OpenAdressingHashTable
 {
 public:
     // Construtor: cria uma tabela hash com um numero primo de slot
-    HashTable(size_t size_table = 19, float load_factor = 1.0);
+    OpenAdressingHashTable(size_t size_table = 19, float load_factor = 1.0);
 
     // Retorna o número de elemento da tabela hash
     size_t size() const;
@@ -48,7 +48,7 @@ public:
     // Se a tabela for vazia retorna true, senão retorna vazia
     bool empty() const;
 
-    // Retorna o número de slots da HashTable, ou seja, o tamanho dela
+    // Retorna o número de slots da OpenAdressingHashTable, ou seja, o tamanho dela
     // Slots são os campos que um valor ocupar dentro da tabela,
     // essa função retorna tanto os vazios quanto ocupados.
     size_t bucket_count() const;
@@ -144,8 +144,8 @@ public:
     // ordena ele, e mostra ele no terminal.
     void show_ordened() const;
 
-    // Destrutor da HashTable
-    ~HashTable();
+    // Destrutor da OpenAdressingHashTable
+    ~OpenAdressingHashTable();
 
 private:
     // quantidade de pares (chave,valor)
@@ -199,7 +199,7 @@ private:
 };
 
 template <typename Key, typename Value, typename Hash>
-HashTable<Key, Value, Hash>::HashTable(size_t size_table, float load_factor)
+OpenAdressingHashTable<Key, Value, Hash>::OpenAdressingHashTable(size_t size_table, float load_factor)
 {
     m_number_of_elements = 0;
     m_table_size = get_next_prime(size_table);
@@ -213,37 +213,37 @@ HashTable<Key, Value, Hash>::HashTable(size_t size_table, float load_factor)
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::size() const
+size_t OpenAdressingHashTable<Key, Value, Hash>::size() const
 {
     return m_number_of_elements;
 }
 
 template <typename Key, typename Value, typename Hash>
-bool HashTable<Key, Value, Hash>::empty() const
+bool OpenAdressingHashTable<Key, Value, Hash>::empty() const
 {
     return m_number_of_elements == 0;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::bucket_count() const
+size_t OpenAdressingHashTable<Key, Value, Hash>::bucket_count() const
 {
     return m_table_size;
 }
 
 template <typename Key, typename Value, typename Hash>
-float HashTable<Key, Value, Hash>::load_factor() const
+float OpenAdressingHashTable<Key, Value, Hash>::load_factor() const
 {
     return static_cast<float>(m_number_of_elements) / m_table_size;
 }
 
 template <typename Key, typename Value, typename Hash>
-float HashTable<Key, Value, Hash>::max_load_factor() const
+float OpenAdressingHashTable<Key, Value, Hash>::max_load_factor() const
 {
     return m_max_load_factor;
 }
 
 template <typename Key, typename Value, typename Hash>
-void HashTable<Key, Value, Hash>::clear()
+void OpenAdressingHashTable<Key, Value, Hash>::clear()
 {
     m_table.clear();
     m_table.resize(m_table_size);
@@ -253,7 +253,7 @@ void HashTable<Key, Value, Hash>::clear()
 }
 
 template <typename Key, typename Value, typename Hash>
-bool HashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
+bool OpenAdressingHashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
 {
     try
     {
@@ -283,7 +283,7 @@ bool HashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
 }
 
 template <typename Key, typename Value, typename Hash>
-bool HashTable<Key, Value, Hash>::contains(const Key &k)
+bool OpenAdressingHashTable<Key, Value, Hash>::contains(const Key &k)
 {
     try
     {
@@ -297,7 +297,7 @@ bool HashTable<Key, Value, Hash>::contains(const Key &k)
 }
 
 template <typename Key, typename Value, typename Hash>
-Value &HashTable<Key, Value, Hash>::at(const Key &k)
+Value &OpenAdressingHashTable<Key, Value, Hash>::at(const Key &k)
 {
     try
     {
@@ -311,7 +311,7 @@ Value &HashTable<Key, Value, Hash>::at(const Key &k)
 }
 
 template <typename Key, typename Value, typename Hash>
-void HashTable<Key, Value, Hash>::rehash(size_t m)
+void OpenAdressingHashTable<Key, Value, Hash>::rehash(size_t m)
 {
     size_t new_table_size = get_next_prime(m);
     if (new_table_size > m_table_size)
@@ -329,7 +329,7 @@ void HashTable<Key, Value, Hash>::rehash(size_t m)
 }
 
 template <typename Key, typename Value, typename Hash>
-bool HashTable<Key, Value, Hash>::remove(const Key &k)
+bool OpenAdressingHashTable<Key, Value, Hash>::remove(const Key &k)
 {
     try
     {
@@ -345,7 +345,7 @@ bool HashTable<Key, Value, Hash>::remove(const Key &k)
 }
 
 template <typename Key, typename Value, typename Hash>
-void HashTable<Key, Value, Hash>::reserve(size_t n)
+void OpenAdressingHashTable<Key, Value, Hash>::reserve(size_t n)
 {
     if (n > m_table_size * m_max_load_factor)
     {
@@ -354,7 +354,7 @@ void HashTable<Key, Value, Hash>::reserve(size_t n)
 }
 
 template <typename Key, typename Value, typename Hash>
-void HashTable<Key, Value, Hash>::set_max_load_factor(float lf)
+void OpenAdressingHashTable<Key, Value, Hash>::set_max_load_factor(float lf)
 {
     if (lf <= 0)
         throw std::out_of_range("invalid load factor");
@@ -364,7 +364,7 @@ void HashTable<Key, Value, Hash>::set_max_load_factor(float lf)
 }
 
 template <typename Key, typename Value, typename Hash>
-Value &HashTable<Key, Value, Hash>::operator[](const Key &k)
+Value &OpenAdressingHashTable<Key, Value, Hash>::operator[](const Key &k)
 {
     try
     {
@@ -388,25 +388,25 @@ Value &HashTable<Key, Value, Hash>::operator[](const Key &k)
 }
 
 template <typename Key, typename Value, typename Hash>
-const Value &HashTable<Key, Value, Hash>::operator[](const Key &k) const
+const Value &OpenAdressingHashTable<Key, Value, Hash>::operator[](const Key &k) const
 {
     return at(k);
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::get_cont_comparator() const
+size_t OpenAdressingHashTable<Key, Value, Hash>::get_cont_comparator() const
 {
     return cont_comparator;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::get_cont_collisions() const
+size_t OpenAdressingHashTable<Key, Value, Hash>::get_cont_collisions() const
 {
     return cont_collisions;
 }
 
 template <typename Key, typename Value, typename Hash>
-void HashTable<Key, Value, Hash>::show_ordened() const
+void OpenAdressingHashTable<Key, Value, Hash>::show_ordened() const
 {
     std::vector<std::pair<Key, Value>> elementos;
 
@@ -431,7 +431,7 @@ void HashTable<Key, Value, Hash>::show_ordened() const
 }
 
 template <typename Key, typename Value, typename Hash>
-HashTable<Key, Value, Hash>::~HashTable()
+OpenAdressingHashTable<Key, Value, Hash>::~OpenAdressingHashTable()
 {
     m_table.clear();
     m_table_size = 0;
@@ -439,7 +439,7 @@ HashTable<Key, Value, Hash>::~HashTable()
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::aux_search(Key k)
+size_t OpenAdressingHashTable<Key, Value, Hash>::aux_search(Key k)
 {
     size_t i = 0, j = 0;
     do
@@ -454,14 +454,14 @@ size_t HashTable<Key, Value, Hash>::aux_search(Key k)
 }
 
 template <typename Key, typename Value, typename Hash>
-bool HashTable<Key, Value, Hash>::cont_comp()
+bool OpenAdressingHashTable<Key, Value, Hash>::cont_comp()
 {
     cont_comparator++;
     return true;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::get_next_prime(size_t x)
+size_t OpenAdressingHashTable<Key, Value, Hash>::get_next_prime(size_t x)
 {
     if (x <= 2)
         return 3;
@@ -484,7 +484,7 @@ size_t HashTable<Key, Value, Hash>::get_next_prime(size_t x)
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t HashTable<Key, Value, Hash>::hash_code(const Key &k, size_t i) const
+size_t OpenAdressingHashTable<Key, Value, Hash>::hash_code(const Key &k, size_t i) const
 {
     return (m_hashing(k) % m_table_size) + i * (1 + (m_hashing(k) % (m_table_size - 1))) % m_table_size;
 }

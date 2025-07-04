@@ -69,7 +69,7 @@ namespace std
 }
 
 #include "ChainedHashTable.hpp"
-#include "HashTable.hpp"
+#include "OpenAdressingHashTable.hpp"
 #include "AVL.hpp"
 #include "RBT.hpp"
 void testChainedHashTable()
@@ -147,9 +147,9 @@ void testChainedHashTable()
     cout << "Tabela está vazia? " << (tabela.empty() ? "Sim" : "Não") << endl;
 }
 
-void testHashTable()
+void testOpenAdressingHashTable()
 {
-    HashTable<Pares, int> tabela(7, 1.5);
+    OpenAdressingHashTable<Pares, int> tabela(7, 1.5);
 
     Pares p1(10, "A");
     Pares p2(7, "B");
@@ -398,7 +398,7 @@ int main()
     SetConsoleMode(hOut, dwMode);
 
     testChainedHashTable();
-    testHashTable();
+    testOpenAdressingHashTable();
     testAVL();
     testRBT();
 }
