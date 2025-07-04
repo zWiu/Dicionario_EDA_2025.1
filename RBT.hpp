@@ -158,7 +158,7 @@ private:
 template <typename Key, typename Value>
 RBT<Key, Value>::RBT()
 {
-    nil = new Node_RBT<Key, Value>(Key{}, Value{}, BLACK, nullptr, nullptr, nullptr);
+    nil = new Node_RBT<Key, Value>(Key(), Value(), BLACK, nullptr, nullptr, nullptr);
     nil->left = nil->right = nil->p = nil;
     m_root = nil;
     m_root->p = nil;
@@ -170,7 +170,7 @@ template <typename Key, typename Value>
 RBT<Key, Value>::RBT(const RBT &rbt)
     : cont_comparator{rbt.cont_comparator}, cont_rotation{rbt.cont_rotation}
 {
-    nil = new Node_RBT<Key, Value>(Key{}, Value{}, BLACK, nullptr, nullptr, nullptr);
+    nil = new Node_RBT<Key, Value>(Key(), Value(), BLACK, nullptr, nullptr, nullptr);
     nil->left = nil->right = nil->p = nil;
     m_root = copy(rbt.m_root, rbt.nil);
     if (m_root != nil)
@@ -539,14 +539,14 @@ void RBT<Key, Value>::deletion(Node_RBT<Key, Value> *node)
 template <typename Key, typename Value>
 Node_RBT<Key, Value> *RBT<Key, Value>::clear(Node_RBT<Key, Value> *node)
 {
-    if (node != nullptr)
+    if (node != nil)
     {
         node->left = clear(node->left);
         node->right = clear(node->right);
         delete node;
     }
 
-    return nullptr;
+    return nil;
 }
 
 template <typename Key, typename Value>

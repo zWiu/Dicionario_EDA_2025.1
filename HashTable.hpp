@@ -1,5 +1,5 @@
-#ifndef CHAINED_HASHTABLE_HPP
-#define CHAINED_HASHTABLE_HPP
+#ifndef HASHTABLE_HPP
+#define HASHTABLE_HPP
 
 #include <iostream>
 #include <exception>
@@ -11,15 +11,36 @@
 #include <functional>
 #include <algorithm>
 
+#define EMPTY 0
+#define DELETED 1
+#define ACTIVE 2
+
+template <typename Key, typename Value>
+struct Element
+{
+    std::pair<Key, Value> value; // Guarda o valor e a chave do elemento
+    int status;                  // Guarda o status do item, se ele é EMPTY, DELETED ou ACTIVE
+
+    Element()
+    : value{Key(), Value()}, status{EMPTY} {}
+
+    Element(Key key, Value value, int status)
+    {
+        this->value.first = key;
+        this->value.second = value;
+        this->status = status;
+    }
+};
+
 // Classe que implementa uma tabela hash com tratamento de
-// colisao por encadeamento exterior (chained hash table).
+// colisão por endereçamento aberto
 
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
-class ChainedHashTable
+class HashTable
 {
 public:
     // Construtor: cria uma tabela hash com um numero primo de slot
-    ChainedHashTable(size_t size_table = 19, float load_factor = 1.0);
+    HashTable(size_t size_table = 19, float load_factor = 1.0);
 
     // Retorna o número de elemento da tabela hash
     size_t size() const;
@@ -32,14 +53,6 @@ public:
     // essa função retorna tanto os vazios quanto ocupados.
     size_t bucket_count() const;
 
-    // Recebe um número de slot n
-    // Retorna o número de elementos naquele slot
-    size_t bucket_size(size_t n) const;
-
-    // Recebe a referência de uma chave constante k
-    // Retorna o número do slot que a chave vai estar
-    size_t bucket(const Key &k) const;
-
     // Retorna o fator de carga atual da tabela
     float load_factor() const;
 
@@ -51,20 +64,17 @@ public:
     void clear();
 
     // Insere um novo elemento na tabela hash.
-    // Se m_number_of_elements / m_table_size > m_max_load_factor entao a funcao
-    // invoca a funcao rehash() passando o dobro do tamanho atual da tabela.
-    // O elemento eh inserido somente se a chave dele ja nao estiver presente
-    // na tabela (numa tabela hash, as chaves sao unicas).
-    // Caso a insercao seja feita, isso incrementa o numero de elementos da tabela em 1 unidade.
-    // Retorna true se e somente se a insercao for feita.
+    // Usa a função aux_search(), para procurar a chave, caso ela já esteja sendo usada
+    // atualiza o valor dela, se não tiver na tabela uma nova busca é realizada para inserir nela.
     bool add(const Key &k, const Value &v);
 
     // Recebe como entrada uma chave k e retorna true
     // se e somente se a chave k estiver presente na tabela hash.
     bool contains(const Key &k);
 
-    // Retorna uma referencia para o valor associado a chave k.
-    // Se k nao estiver na tabela, a funcao lanca uma out_of_range exception.
+    // Recebe a referência de uma chave constante k
+    // Procura a chave, caso encontre retorna o valor associado
+    // se não lança uma excessão
     Value &at(const Key &k);
 
     // Recebe um inteiro nao negativo m e faz com que o tamanho
@@ -107,9 +117,14 @@ public:
     // retorna uma referencia ao seu valor mapeado. Caso contrario,
     // se k nao corresponder a chave de nenhum elemento na tabela,
     // a funcao insere um novo elemento com essa chave e retorna um
-    // referencia ao seu valor mapeado. Observe que isso sempre aumenta
-    // o tamanho da tabela em um, mesmo se nenhum valor mapeado for atribuido
-    // ao elemento (o elemento eh construido usando seu construtor padrao)
+    // referencia ao seu valor mapeado. caso a inserção não funcione
+    // Chama o rehash para duas vezes o tamanho atual
+    // tenta a inserção de novo
+    // Caso funcione continua.
+    // Caso não lança uma excessão
+    // Observe que isso sempre aumenta o tamanho da tabela em um,
+    //  mesmo se nenhum valor mapeado for atribuido ao elemento
+    //(o elemento eh construido usando seu construtor padrao)
     Value &operator[](const Key &k);
 
     // Versao const da sobrecarga do operador de indexacao.
@@ -130,7 +145,7 @@ public:
     void show_ordened() const;
 
     // Destrutor da HashTable
-    ~ChainedHashTable();
+    ~HashTable();
 
 private:
     // quantidade de pares (chave,valor)
@@ -147,7 +162,7 @@ private:
     float m_max_load_factor;
 
     // Tabela
-    std::vector<std::list<std::pair<Key, Value>>> m_table;
+    std::vector<Element<Key, Value>> m_table;
 
     // Referencia para a funcao de codificacao
     Hash m_hashing;
@@ -157,6 +172,12 @@ private:
 
     // Contador de colisões
     size_t cont_collisions;
+
+    // A função aux_search realiza sondagem linear para encontrar a posição
+    // de uma chave específica dentro da tabela hash. Se a chave estiver
+    // presente em um slot ativo, retorna seu índice; caso contrário,
+    // lança exceção indicando que a chave não foi encontrada.
+    size_t aux_search(Key k);
 
     // Incrementa o contador de comparações durante as operações da tabela.
     // Retorna verdadeiro para permitir seu uso dentro de expressões condicionais
@@ -168,16 +189,17 @@ private:
     size_t get_next_prime(size_t x);
 
     // Retorna um inteiro no intervalo [0 ... m_table_size-1].
-    // Esta funcao recebe uma chave k e faz o seguinte:
-    // (1) computa o codigo hash h(k) usando a
-    //     funcao no atributo privado m_hashing
-    // (2) computa um indice no intervalo [0 ... m_table_size-1]
-    //     aplicando o metodo da divisao: h(k) % m_table_size
-    size_t hash_code(const Key &k) const;
+    // Esta funcao recebe uma chave k e um indice i faz o seguinte:
+    // Realiza dois modelos de hashing:
+    //      h1 = m_hashing(k)%m_table_size
+    //      h2 = 1+(m_hashing(k)%(m_table_size-1))
+    // Juntando as duas num modelo de hashing duplo, tal que:
+    //      hash_duplo: (h1+i*h2)%m_table_size
+    size_t hash_code(const Key &k, size_t i) const;
 };
 
 template <typename Key, typename Value, typename Hash>
-ChainedHashTable<Key, Value, Hash>::ChainedHashTable(size_t size_table, float load_factor)
+HashTable<Key, Value, Hash>::HashTable(size_t size_table, float load_factor)
 {
     m_number_of_elements = 0;
     m_table_size = get_next_prime(size_table);
@@ -191,49 +213,37 @@ ChainedHashTable<Key, Value, Hash>::ChainedHashTable(size_t size_table, float lo
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::size() const
+size_t HashTable<Key, Value, Hash>::size() const
 {
     return m_number_of_elements;
 }
 
 template <typename Key, typename Value, typename Hash>
-bool ChainedHashTable<Key, Value, Hash>::empty() const
+bool HashTable<Key, Value, Hash>::empty() const
 {
     return m_number_of_elements == 0;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::bucket_count() const
+size_t HashTable<Key, Value, Hash>::bucket_count() const
 {
     return m_table_size;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::bucket_size(size_t n) const
-{
-    return m_table.at(n).size();
-}
-
-template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::bucket(const Key &k) const
-{
-    return hash_code(k);
-}
-
-template <typename Key, typename Value, typename Hash>
-float ChainedHashTable<Key, Value, Hash>::load_factor() const
+float HashTable<Key, Value, Hash>::load_factor() const
 {
     return static_cast<float>(m_number_of_elements) / m_table_size;
 }
 
 template <typename Key, typename Value, typename Hash>
-float ChainedHashTable<Key, Value, Hash>::max_load_factor() const
+float HashTable<Key, Value, Hash>::max_load_factor() const
 {
     return m_max_load_factor;
 }
 
 template <typename Key, typename Value, typename Hash>
-void ChainedHashTable<Key, Value, Hash>::clear()
+void HashTable<Key, Value, Hash>::clear()
 {
     m_table.clear();
     m_table.resize(m_table_size);
@@ -243,83 +253,99 @@ void ChainedHashTable<Key, Value, Hash>::clear()
 }
 
 template <typename Key, typename Value, typename Hash>
-bool ChainedHashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
+bool HashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
 {
-    if (load_factor() >= m_max_load_factor)
-        rehash(m_table_size / m_max_load_factor);
-    size_t slot = hash_code(k);
-
-    for (auto p : m_table[slot])
-        if (cont_comp() && p.first == k)
-            return false;
-
-    if (!m_table[slot].empty())
-        cont_collisions += bucket_size(slot);
-
-    m_table[slot].push_back({k, v});
-    m_number_of_elements++;
-    return true;
+    try
+    {
+        size_t m = aux_search(k);
+        m_table[m].value.second = v;
+        return true;
+    }
+    catch (const std::invalid_argument &e)
+    {
+        size_t i = 0;
+        do
+        {
+            size_t j = hash_code(k, i);
+            if (cont_comp() && m_table[j].status != ACTIVE)
+            {
+                m_table[j].value.first = k;
+                m_table[j].value.second = v;
+                m_table[j].status = ACTIVE;
+                m_number_of_elements++;
+                return true;
+            }
+            cont_collisions++;
+            i++;
+        } while (i < m_table_size);
+        return false;
+    }
 }
 
 template <typename Key, typename Value, typename Hash>
-bool ChainedHashTable<Key, Value, Hash>::contains(const Key &k)
+bool HashTable<Key, Value, Hash>::contains(const Key &k)
 {
-    size_t slot = hash_code(k);
-    for (auto p : m_table[slot])
-        if (p.first == k)
-            return true;
-    return false;
+    try
+    {
+        aux_search(k);
+        return true;
+    }
+    catch (const std::invalid_argument &e)
+    {
+        return false;
+    }
 }
 
 template <typename Key, typename Value, typename Hash>
-Value &ChainedHashTable<Key, Value, Hash>::at(const Key &k)
+Value &HashTable<Key, Value, Hash>::at(const Key &k)
 {
-    size_t slot = hash_code(k);
-    for (auto &p : m_table[slot])
-        if (p.first == k)
-            return p.second;
-
-    throw std::invalid_argument("Invalid key");
+    try
+    {
+        size_t m = aux_search(k);
+        return m_table[m].value.second;
+    }
+    catch (const std::invalid_argument &e)
+    {
+        throw e;
+    }
 }
 
 template <typename Key, typename Value, typename Hash>
-void ChainedHashTable<Key, Value, Hash>::rehash(size_t m)
+void HashTable<Key, Value, Hash>::rehash(size_t m)
 {
     size_t new_table_size = get_next_prime(m);
     if (new_table_size > m_table_size)
     {
-        std::vector<std::list<std::pair<Key, Value>>> old_vec = m_table;
-        m_table.clear();
+        std::vector<Element<Key, Value>> old_vec = m_table;
         m_number_of_elements = 0;
         m_table_size = new_table_size;
         m_table.resize(new_table_size);
-        for (size_t i = 0; i < old_vec.size(); i++)
+        for (auto &elem : old_vec)
         {
-            for (auto par : old_vec[i])
-                add(par.first, par.second);
-            old_vec[i].clear();
+            if (elem.status == ACTIVE)
+                add(elem.value.first, elem.value.second);
         }
     }
 }
 
 template <typename Key, typename Value, typename Hash>
-bool ChainedHashTable<Key, Value, Hash>::remove(const Key &k)
+bool HashTable<Key, Value, Hash>::remove(const Key &k)
 {
-    size_t slot = hash_code(k);
-    for (auto it = m_table[slot].begin(); it != m_table[slot].end(); ++it)
+    try
     {
-        if (cont_comp() && it->first == k)
-        {
-            m_table[slot].erase(it);
-            m_number_of_elements--;
-            return true;
-        }
+        size_t m = aux_search(k);
+        m_table[m].status = DELETED;
+        m_number_of_elements--;
+        return true;
     }
-    return false;
+    catch (const std::invalid_argument &e)
+    {
+        return false;
+    }
 }
 
 template <typename Key, typename Value, typename Hash>
-void ChainedHashTable<Key, Value, Hash>::reserve(size_t n)
+void HashTable<Key, Value, Hash>::reserve(size_t n)
 {
     if (n > m_table_size * m_max_load_factor)
     {
@@ -328,7 +354,7 @@ void ChainedHashTable<Key, Value, Hash>::reserve(size_t n)
 }
 
 template <typename Key, typename Value, typename Hash>
-void ChainedHashTable<Key, Value, Hash>::set_max_load_factor(float lf)
+void HashTable<Key, Value, Hash>::set_max_load_factor(float lf)
 {
     if (lf <= 0)
         throw std::out_of_range("invalid load factor");
@@ -338,46 +364,55 @@ void ChainedHashTable<Key, Value, Hash>::set_max_load_factor(float lf)
 }
 
 template <typename Key, typename Value, typename Hash>
-Value &ChainedHashTable<Key, Value, Hash>::operator[](const Key &k)
+Value &HashTable<Key, Value, Hash>::operator[](const Key &k)
 {
-    size_t slot = hash_code(k);
-    for (auto &par : m_table[slot])
-        if (par.first == k)
-            return par.second;
+    try
+    {
+        size_t m = aux_search(k);
+        return m_table[m].value.second;
+    }
+    catch (const std::invalid_argument &e)
+    {
+        if (!add(k, Value()))
+        {
+            rehash(2 * m_table_size);
+            if (!add(k, Value()))
+            {
+                throw std::runtime_error("Erro durante a inserção de um elemento na hash de endereçamento aberto.");
+            }
+        }
 
-    m_table[slot].push_back({k, Value()});
-    return m_table[slot].back().second;
+        size_t m = aux_search(k);
+        return m_table[m].value.second;
+    }
 }
 
 template <typename Key, typename Value, typename Hash>
-const Value &ChainedHashTable<Key, Value, Hash>::operator[](const Key &k) const
+const Value &HashTable<Key, Value, Hash>::operator[](const Key &k) const
 {
     return at(k);
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::get_cont_comparator() const
+size_t HashTable<Key, Value, Hash>::get_cont_comparator() const
 {
     return cont_comparator;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::get_cont_collisions() const
+size_t HashTable<Key, Value, Hash>::get_cont_collisions() const
 {
     return cont_collisions;
 }
 
 template <typename Key, typename Value, typename Hash>
-void ChainedHashTable<Key, Value, Hash>::show_ordened() const
+void HashTable<Key, Value, Hash>::show_ordened() const
 {
     std::vector<std::pair<Key, Value>> elementos;
 
-    for (size_t i = 0; i < m_table.size(); i++)
-    {
-        for (const auto &elem : m_table[i])
-        {
-            elementos.push_back(elem);
-        }
+    for (size_t i = 0; i < m_table_size; i++){
+        if (m_table[i].status == ACTIVE)
+            elementos.push_back(m_table[i].value);
     }
 
     std::sort(elementos.begin(), elementos.end(), [](auto &a, auto &b)
@@ -396,7 +431,7 @@ void ChainedHashTable<Key, Value, Hash>::show_ordened() const
 }
 
 template <typename Key, typename Value, typename Hash>
-ChainedHashTable<Key, Value, Hash>::~ChainedHashTable()
+HashTable<Key, Value, Hash>::~HashTable()
 {
     m_table.clear();
     m_table_size = 0;
@@ -404,14 +439,29 @@ ChainedHashTable<Key, Value, Hash>::~ChainedHashTable()
 }
 
 template <typename Key, typename Value, typename Hash>
-bool ChainedHashTable<Key, Value, Hash>::cont_comp()
+size_t HashTable<Key, Value, Hash>::aux_search(Key k)
+{
+    size_t i = 0, j = 0;
+    do
+    {
+        j = hash_code(k, i);
+        if (m_table[j].status == ACTIVE and m_table[j].value.first == k)
+            return j;
+        i++;
+    } while (m_table[j].status != EMPTY and i < m_table_size);
+
+        throw std::invalid_argument("Chave não encontrada");
+}
+
+template <typename Key, typename Value, typename Hash>
+bool HashTable<Key, Value, Hash>::cont_comp()
 {
     cont_comparator++;
     return true;
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::get_next_prime(size_t x)
+size_t HashTable<Key, Value, Hash>::get_next_prime(size_t x)
 {
     if (x <= 2)
         return 3;
@@ -434,9 +484,9 @@ size_t ChainedHashTable<Key, Value, Hash>::get_next_prime(size_t x)
 }
 
 template <typename Key, typename Value, typename Hash>
-size_t ChainedHashTable<Key, Value, Hash>::hash_code(const Key &k) const
+size_t HashTable<Key, Value, Hash>::hash_code(const Key &k, size_t i) const
 {
-    return m_hashing(k) % m_table_size;
+    return (m_hashing(k) % m_table_size) + i * (1 + (m_hashing(k) % (m_table_size - 1))) % m_table_size;
 }
 
 #endif

@@ -69,6 +69,7 @@ namespace std
 }
 
 #include "ChainedHashTable.hpp"
+#include "HashTable.hpp"
 #include "AVL.hpp"
 #include "RBT.hpp"
 void testChainedHashTable()
@@ -94,6 +95,9 @@ void testChainedHashTable()
         cout << "Adicionado " << p4 << ", " << 40 << endl;
     if (tabela.add(p5, 50))
         cout << "Adicionado " << p5 << ", " << 50 << endl;
+
+    // Mostrando a tabela
+    tabela.show_ordened(); 
 
     // Tamanho e fator de carga
     cout << "\nTamanho atual: " << tabela.size() << endl;
@@ -143,6 +147,77 @@ void testChainedHashTable()
     cout << "Tabela está vazia? " << (tabela.empty() ? "Sim" : "Não") << endl;
 }
 
+void testHashTable()
+{
+    HashTable<Pares, int> tabela(7, 1.5);
+
+    Pares p1(10, "A");
+    Pares p2(7, "B");
+    Pares p3(15, "C");
+    Pares p4(43, "D");
+    Pares p5(5, "E");
+    cout << "\n***TESTE DA HASH TABLE***" << endl;
+
+    // Teste de adição
+    cout << "Adicionando elementos:" << endl;
+    if (tabela.add(p1, 2))
+        cout << "Adicionado " << p1 << ", " << 10 << endl;
+    if (tabela.add(p2, 20))
+        cout << "Adicionado " << p2 << ", " << 20 << endl;
+    if (tabela.add(p3, 30))
+        cout << "Adicionado " << p3 << ", " << 30 << endl;
+    if (tabela.add(p4, 40))
+        cout << "Adicionado " << p4 << ", " << 40 << endl;
+    if (tabela.add(p5, 50))
+        cout << "Adicionado " << p5 << ", " << 50 << endl;
+
+    // Mostrando a tabela
+    tabela.show_ordened(); 
+
+    // Tamanho e fator de carga
+    cout << "\nTamanho atual: " << tabela.size() << endl;
+    cout << "Fator de carga: " << tabela.load_factor() << endl;
+
+    // Teste de contains
+    cout << "\nContém p3? " << (tabela.contains(p3) ? "Sim" : "Não") << endl;
+
+    // Teste do método at
+    try
+    {
+        cout << "Valor associado a p2: " << tabela.at(p2) << endl;
+    }
+    catch (const exception &e)
+    {
+        cout << e.what() << endl;
+    }
+
+    // Teste do operador []
+    cout << "\nAcessando p4 com operador []: " << tabela[p4] << endl;
+    tabela[p4] = 100;
+    cout << "Novo valor de p4: " << tabela[p4] << endl;
+
+    // Teste de remoção
+    cout << "\nRemovendo p1..." << endl;
+    bool removido = tabela.remove(p1);
+    cout << (removido ? "Removido com sucesso." : "Não encontrado.") << endl;
+
+    cout << "Contém p1? " << (tabela.contains(p1) ? "Sim" : "Não") << endl;
+
+    // Teste de rehash forçado via reserve
+    cout << "\nExecutando reserve(50)..." << endl;
+    tabela.reserve(50);
+    cout << "Novo bucket_count: " << tabela.bucket_count() << endl;
+
+    // Contadores:
+    cout << "\nContador de comparações feitas nas chaves: " << tabela.get_cont_comparator() << endl;
+    cout << "Contador de colisões: " << tabela.get_cont_collisions() << endl;
+
+    // Teste de clear
+    cout << "\nLimpando a tabela..." << endl;
+    tabela.clear();
+    cout << "Tabela está vazia? " << (tabela.empty() ? "Sim" : "Não") << endl;   
+}
+
 void testAVL()
 {
     AVL<Pares, int> arvore;
@@ -152,7 +227,7 @@ void testAVL()
     Pares p3(15, "C");
     Pares p4(43, "D");
     Pares p5(5, "E");
-    cout << "***TESTE DA AVL***" << endl;
+    cout << "\n***TESTE DA AVL***" << endl;
 
     // Teste de adição
     cout << "Adicionando elementos:" << endl;
@@ -235,7 +310,7 @@ void testRBT()
     Pares p3(15, "C");
     Pares p4(43, "D");
     Pares p5(5, "E");
-    cout << "***TESTE DA RBT***" << endl;
+    cout << "\n***TESTE DA RBT***" << endl;
 
     // Teste de adição
     cout << "Adicionando elementos:" << endl;
@@ -323,6 +398,7 @@ int main()
     SetConsoleMode(hOut, dwMode);
 
     testChainedHashTable();
+    testHashTable();
     testAVL();
     testRBT();
 }
