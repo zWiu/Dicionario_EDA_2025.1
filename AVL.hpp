@@ -9,9 +9,9 @@ template <typename Key, typename Value>
 struct Node
 {
     std::pair<Key, Value> value; // Par com chave e valor do nó
-    int height;  // Altura do nó
-    Node *left;  // Filho esquerdo do nó, menor
-    Node *right; // Filho direito do nó, maior
+    int height;                  // Altura do nó
+    Node *left;                  // Filho esquerdo do nó, menor
+    Node *right;                 // Filho direito do nó, maior
 
     Node(Key k, Value v, int height, Node<Key, Value> *left, Node<Key, Value> *right)
     {
@@ -69,9 +69,18 @@ public:
     void show();
 
     // Recebe uma key
-    // Retorna true se e somente se a chave consta na árvore 
+    // Retorna true se e somente se a chave consta na árvore
     // Retorna false caso contrário
     bool contains(Key key);
+
+    // Sobrecarga de operador de indexação.
+    // Se k corresponder a chave de um elemento da árvore , a funcao
+    // retorna uma referencia ao seu valor mapeado. Caso contrario,
+    // se k nao corresponder a chave de nenhum elemento da árvore,
+    // a funcao insere um novo elemento com essa chave e retorna um
+    // referencia ao seu valor mapeado. Caso ocorra um erro durante a inserção
+    // lança uma excessão de runtime_error
+    Value &operator[](const Key &key);
 
     // Limpa a árvore
     void clear();
@@ -151,12 +160,12 @@ private:
 };
 
 template <typename Key, typename Value>
-AVL<Key, Value>::AVL() 
-:m_root{nullptr}, cont_comparator{0}, cont_rotation{0} {}
+AVL<Key, Value>::AVL()
+    : m_root{nullptr}, cont_comparator{0}, cont_rotation{0} {}
 
 template <typename Key, typename Value>
-AVL<Key, Value>::AVL(const AVL<Key, Value> &avl) 
-:m_root{copy(avl.m_root)}, cont_comparator{avl.cont_comparator}, cont_rotation{avl.cont_rotation} {}
+AVL<Key, Value>::AVL(const AVL<Key, Value> &avl)
+    : m_root{copy(avl.m_root)}, cont_comparator{avl.cont_comparator}, cont_rotation{avl.cont_rotation} {}
 
 template <typename Key, typename Value>
 void AVL<Key, Value>::insert(Key key, Value value)
@@ -175,19 +184,20 @@ void AVL<Key, Value>::update(Key key, Value value)
 {
     Node<Key, Value> *atual = m_root;
 
-    while(atual != nullptr)
+    while (atual != nullptr)
     {
-        if(cont_comp() && atual->value.first > key )
+        if (cont_comp() && atual->value.first > key)
             atual = atual->left;
-        else if(cont_comp() && atual->value.first < key )
+        else if (cont_comp() && atual->value.first < key)
             atual = atual->right;
-        else{
+        else
+        {
             atual->value.second = value;
             break;
         }
     }
 
-    if(atual == nullptr)
+    if (atual == nullptr)
     {
         throw std::invalid_argument("invalid key on update");
     }
@@ -222,11 +232,11 @@ void AVL<Key, Value>::show()
         {
             aux = p.top();
             p.pop();
-            std::cout << "(" << aux->value.first << ", " <<  aux->value.second <<")";
+            std::cout << "(" << aux->value.first << ", " << aux->value.second << ")";
             aux = aux->right;
             if (!p.empty() || aux != nullptr)
                 std::cout << ", ";
-            else 
+            else
                 std::cout << std::endl;
         }
     }
@@ -237,17 +247,48 @@ bool AVL<Key, Value>::contains(Key key)
 {
     Node<Key, Value> *atual = m_root;
 
-    while(atual != nullptr)
+    while (atual != nullptr)
     {
-        if(cont_comp() && atual->value.first > key )
+        if (cont_comp() && atual->value.first > key)
             atual = atual->left;
-        else if(cont_comp() && atual->value.first < key )
+        else if (cont_comp() && atual->value.first < key)
             atual = atual->right;
         else
             return true;
     }
 
     return false;
+}
+
+template <typename Key, typename Value>
+Value &AVL<Key, Value>::operator[](const Key &key)
+{
+    Node<Key, Value> *atual = m_root;
+    while (atual != nullptr)
+    {
+        if (cont_comp() && atual->value.first == key)
+            return atual->value.second;
+        else if (cont_comp() && atual->value.first > key)
+            atual = atual->left;
+        else
+            atual = atual->right;
+    }
+
+    if (atual == nullptr)
+        insert(m_root, key, Value());
+
+    atual = m_root;
+    while (atual != nullptr)
+    {
+        if (cont_comp() && atual->value.first == key)
+            return atual->value.second;
+        else if (cont_comp() && atual->value.first > key)
+            atual = atual->left;
+        else
+            atual = atual->right;
+    }
+
+    throw std::runtime_error("Erro durante a operação de indexação da AVL");
 }
 
 template <typename Key, typename Value>
@@ -321,10 +362,10 @@ template <typename Key, typename Value>
 Node<Key, Value> *AVL<Key, Value>::fixup_node(Node<Key, Value> *node, Key key)
 {
     int bal = balance(node);
-    if (cont_comp() && bal  == -2 && key < node->left->value.first)
+    if (cont_comp() && bal == -2 && key < node->left->value.first)
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (cont_comp() && bal  == -2 && key > node->left->value.first)
+    else if (cont_comp() && bal == -2 && key > node->left->value.first)
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);
@@ -349,9 +390,9 @@ Node<Key, Value> *AVL<Key, Value>::insert(Node<Key, Value> *node, Key key, Value
 {
     if (node == nullptr)
         return new Node<Key, Value>(key, value, 1, nullptr, nullptr);
-    if (cont_comp() && key == node->value.first )
+    if (cont_comp() && key == node->value.first)
         return node;
-    if (cont_comp() && key < node->value.first )
+    if (cont_comp() && key < node->value.first)
         node->left = insert(node->left, key, value);
     else
         node->right = insert(node->right, key, value);
@@ -375,10 +416,10 @@ Node<Key, Value> *AVL<Key, Value>::fixup_deletion(Node<Key, Value> *node)
         return left_rotation(node);
     }
     // Rotação à direita
-    else if (cont_comp() && bal == -2 && balance(node->left) <= 0 )
+    else if (cont_comp() && bal == -2 && balance(node->left) <= 0)
         return right_rotation(node);
     // Rotação dupla à direita
-    else if (cont_comp() && bal == -2 && balance(node->left) < 0 )
+    else if (cont_comp() && bal == -2 && balance(node->left) < 0)
     {
         node->left = left_rotation(node->left);
         return right_rotation(node);

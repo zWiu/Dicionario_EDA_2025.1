@@ -64,7 +64,7 @@ public:
     bool contains(const Key &k);
 
     // Retorna uma referencia para o valor associado a chave k.
-    // Se k nao estiver na tabela, a funcao lanca uma out_of_range exception.
+    // Se k nao estiver na tabela, a funcao lanca uma invalid_argument exception.
     Value &at(const Key &k);
 
     // Recebe um inteiro nao negativo m e faz com que o tamanho
@@ -346,6 +346,7 @@ Value &ChainedHashTable<Key, Value, Hash>::operator[](const Key &k)
             return par.second;
 
     m_table[slot].push_back({k, Value()});
+    m_number_of_elements++;
     return m_table[slot].back().second;
 }
 

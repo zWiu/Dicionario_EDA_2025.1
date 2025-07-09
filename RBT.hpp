@@ -86,6 +86,15 @@ public:
     // Retorna false caso contrário
     bool contains(Key key);
 
+    // Sobrecarga de operador de indexação.
+    // Se k corresponder a chave de um elemento da árvore , a funcao
+    // retorna uma referencia ao seu valor mapeado. Caso contrario,
+    // se k nao corresponder a chave de nenhum elemento da árvore,
+    // a funcao insere um novo elemento com essa chave e retorna um
+    // referencia ao seu valor mapeado. Caso ocorra um erro durante a inserção
+    // lança uma excessão de runtime_error
+    Value &operator[](const Key &key);
+
     // Limpa a árvore
     void clear();
 
@@ -279,8 +288,8 @@ void RBT<Key, Value>::show()
         {
             aux = pilha.top();
             pilha.pop();
-            
-            std::cout << (aux->color == RED ? "\033[31m" : "\033[30m") <<"(" << aux->value.first << ", " << aux->value.second << ")" << "\033[0m";
+
+            std::cout << (aux->color == RED ? "\033[31m" : "\033[30m") << "(" << aux->value.first << ", " << aux->value.second << ")" << "\033[0m";
             aux = aux->right;
             if (!pilha.empty() || aux != nil)
                 std::cout << ", ";
@@ -306,6 +315,37 @@ bool RBT<Key, Value>::contains(Key key)
     }
 
     return false;
+}
+
+template <typename Key, typename Value>
+Value &RBT<Key, Value>::operator[](const Key &key)
+{
+    Node_RBT<Key, Value> *atual = m_root;
+    while (atual != nil)
+    {
+        if (cont_comp() && atual->value.first == key)
+            return atual->value.second;
+        else if (cont_comp() && atual->value.first > key)
+            atual = atual->left;
+        else
+            atual = atual->right;
+    }
+
+    if (atual == nil)
+        insert(key, Value());
+
+    atual = m_root;
+    while (atual != nil)
+    {
+        if (cont_comp() && atual->value.first == key)
+            return atual->value.second;
+        else if (cont_comp() && atual->value.first > key)
+            atual = atual->left;
+        else
+            atual = atual->right;
+    }
+
+    throw std::runtime_error("Erro durante a operação de indexação da RBT");
 }
 
 template <typename Key, typename Value>
@@ -550,7 +590,7 @@ Node_RBT<Key, Value> *RBT<Key, Value>::clear(Node_RBT<Key, Value> *node)
 }
 
 template <typename Key, typename Value>
-Node_RBT<Key, Value> *RBT<Key, Value>::copy(Node_RBT<Key, Value> *node, Node_RBT<Key, Value> * nil_)
+Node_RBT<Key, Value> *RBT<Key, Value>::copy(Node_RBT<Key, Value> *node, Node_RBT<Key, Value> *nil_)
 {
     if (node == nil_)
         return nil;
@@ -599,7 +639,7 @@ void RBT<Key, Value>::show_tree(Node_RBT<Key, Value> *node, std::string heranca)
         std::cout << "#" << std::endl;
         return;
     }
-    std::cout <<(node->color == RED ? "\033[31m" : "\033[30m") << node->value.first << ", " << node->value.second << "\033[0m"<< std::endl;
+    std::cout << (node->color == RED ? "\033[31m" : "\033[30m") << node->value.first << ", " << node->value.second << "\033[0m" << std::endl;
     if (node != nil && (node->left != nil || node->right != nil))
         show_tree(node->left, heranca + "l");
 }

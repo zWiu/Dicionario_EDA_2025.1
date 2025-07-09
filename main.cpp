@@ -278,9 +278,14 @@ void testAVL()
     }
     catch (const exception &e)
     {
-        cout << e.what() << endl;
+        cout << "Tentativa de atualização do elemento " << p3 << endl;
     }
-    cout << "Tentativa de atualização do elemento " << p3 << endl;
+
+
+    cout << "\nTeste do operator[]" << endl;
+    cout << "Valor de " << p2 << " :" << arvore[p2] << endl;
+    cout << "Valor de " << p3 << " :" << arvore[p3] << endl;
+
 
     cout << "\nResultado das atualizações: " << endl;
     cout << "Árvore 1:" << endl;
@@ -366,8 +371,11 @@ void testRBT()
     {
         cout << "Tentativa de atualização do elemento " << p3 << endl;
     }
-    
 
+    cout << "\nTeste do operator[]" << endl;
+    cout << "Valor de " << p2 << " :" << arvore[p2] << endl;
+    cout << "Valor de " << p3 << " :" << arvore[p3] << endl;
+    
     cout << "\nResultado das atualizações: " << endl;
     cout << "Árvore 1:" << endl;
     arvore.show();
@@ -389,16 +397,27 @@ void testRBT()
     cout << "Árvore está vazia? " << (arvore.empty() ? "Sim" : "Não") << endl;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
     GetConsoleMode(hOut, &dwMode);
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
-
-    testChainedHashTable();
-    testOpenAdressingHashTable();
-    testAVL();
-    testRBT();
+    string str;
+    for(int i = 1; i <= argc; i++)
+    {
+        cout << argv[i] << endl;
+        str = argv[i];
+        if(str == "teste_chained_hash")
+            testChainedHashTable();
+        else if(str == "teste_open_hash")
+            testOpenAdressingHashTable();
+        else if(str == "teste_avl")
+            testAVL();
+        else if(str == "teste_rbt")
+            testRBT();
+    }
+    cout << "Bye!";
+    
 }
