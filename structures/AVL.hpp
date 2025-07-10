@@ -45,11 +45,11 @@ public:
 
     // Insere um valor na árvore AVL.
     // A chave é posicionada de forma a manter a ordem e o balanceamento da árvore.
-    void insert(Key key, Value value);
+    void add(Key key, Value value);
 
     // Remove uma chave da árvore AVL.
     // Caso a chave não esteja presente, nenhuma operação é realizada.
-    void erase(Key key);
+    void remove(Key key);
 
     // Recebe uma key
     // Atualiza o valor associado a key, caso não exista, lança uma excessão
@@ -126,7 +126,7 @@ private:
 
     // Insere uma chave na árvore a partir de um nó dado.
     // Reorganiza os nós e corrige o balanceamento após a inserção
-    Node<Key, Value> *insert(Node<Key, Value> *node, Key key, Value value);
+    Node<Key, Value> *add(Node<Key, Value> *node, Key key, Value value);
 
     // Corrige o balanceamento da árvore após a remoção de um nó.
     // Aplica rotações para manter a propriedade AVL
@@ -138,7 +138,7 @@ private:
 
     // Remove uma chave da árvore a partir de um nó dado.
     // Reorganiza os nós e corrige o balanceamento após a remoção.
-    Node<Key, Value> *erase(Node<Key, Value> *node, Key key);
+    Node<Key, Value> *remove(Node<Key, Value> *node, Key key);
 
     // Remove todos os nós da árvore a partir de um nó dado.
     // Libera a memória utilizada pela subárvore.
@@ -168,15 +168,15 @@ AVL<Key, Value>::AVL(const AVL<Key, Value> &avl)
     : m_root{copy(avl.m_root)}, cont_comparator{avl.cont_comparator}, cont_rotation{avl.cont_rotation} {}
 
 template <typename Key, typename Value>
-void AVL<Key, Value>::insert(Key key, Value value)
+void AVL<Key, Value>::add(Key key, Value value)
 {
-    m_root = insert(m_root, key, value);
+    m_root = add(m_root, key, value);
 }
 
 template <typename Key, typename Value>
-void AVL<Key, Value>::erase(Key key)
+void AVL<Key, Value>::remove(Key key)
 {
-    m_root = erase(m_root, key);
+    m_root = remove(m_root, key);
 }
 
 template <typename Key, typename Value>
@@ -275,7 +275,7 @@ Value &AVL<Key, Value>::operator[](const Key &key)
     }
 
     if (atual == nullptr)
-        insert(m_root, key, Value());
+        add(m_root, key, Value());
 
     atual = m_root;
     while (atual != nullptr)
@@ -386,16 +386,16 @@ Node<Key, Value> *AVL<Key, Value>::fixup_node(Node<Key, Value> *node, Key key)
 }
 
 template <typename Key, typename Value>
-Node<Key, Value> *AVL<Key, Value>::insert(Node<Key, Value> *node, Key key, Value value)
+Node<Key, Value> *AVL<Key, Value>::add(Node<Key, Value> *node, Key key, Value value)
 {
     if (node == nullptr)
         return new Node<Key, Value>(key, value, 1, nullptr, nullptr);
     if (cont_comp() && key == node->value.first)
         return node;
     if (cont_comp() && key < node->value.first)
-        node->left = insert(node->left, key, value);
+        node->left = add(node->left, key, value);
     else
-        node->right = insert(node->right, key, value);
+        node->right = add(node->right, key, value);
 
     node = fixup_node(node, key);
 
@@ -445,14 +445,14 @@ Node<Key, Value> *AVL<Key, Value>::remove_successor(Node<Key, Value> *p, Node<Ke
 }
 
 template <typename Key, typename Value>
-Node<Key, Value> *AVL<Key, Value>::erase(Node<Key, Value> *node, Key key)
+Node<Key, Value> *AVL<Key, Value>::remove(Node<Key, Value> *node, Key key)
 {
     if (node == nullptr)
         return nullptr;
     if (cont_comp() && key < node->value.first)
-        node->left = erase(node->left, key);
+        node->left = remove(node->left, key);
     else if (cont_comp() && key > node->value.first)
-        node->right = erase(node->right, key);
+        node->right = remove(node->right, key);
     else if (node->right == nullptr)
     {
         Node<Key, Value> *aux = node->left;

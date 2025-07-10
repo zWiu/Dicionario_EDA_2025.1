@@ -67,11 +67,13 @@ namespace std
         }
     };
 }
+#include "./structures/ChainedHashTable.hpp"
+#include "./structures/OpenAdressingHashTable.hpp"
+#include "./structures/AVL.hpp"
+#include "./structures/RBT.hpp"
+#include "dictionary_tree.hpp"
+#include "dictionary_hash.hpp"
 
-#include "ChainedHashTable.hpp"
-#include "OpenAdressingHashTable.hpp"
-#include "AVL.hpp"
-#include "RBT.hpp"
 void testChainedHashTable()
 {
     ChainedHashTable<Pares, int> tabela(7, 1.5);
@@ -97,7 +99,7 @@ void testChainedHashTable()
         cout << "Adicionado " << p5 << ", " << 50 << endl;
 
     // Mostrando a tabela
-    tabela.show_ordened(); 
+    tabela.show();
 
     // Tamanho e fator de carga
     cout << "\nTamanho atual: " << tabela.size() << endl;
@@ -172,7 +174,7 @@ void testOpenAdressingHashTable()
         cout << "Adicionado " << p5 << ", " << 50 << endl;
 
     // Mostrando a tabela
-    tabela.show_ordened(); 
+    tabela.show();
 
     // Tamanho e fator de carga
     cout << "\nTamanho atual: " << tabela.size() << endl;
@@ -215,7 +217,7 @@ void testOpenAdressingHashTable()
     // Teste de clear
     cout << "\nLimpando a tabela..." << endl;
     tabela.clear();
-    cout << "Tabela está vazia? " << (tabela.empty() ? "Sim" : "Não") << endl;   
+    cout << "Tabela está vazia? " << (tabela.empty() ? "Sim" : "Não") << endl;
 }
 
 void testAVL()
@@ -231,15 +233,15 @@ void testAVL()
 
     // Teste de adição
     cout << "Adicionando elementos:" << endl;
-    arvore.insert(p1, 2);
+    arvore.add(p1, 2);
     cout << "Adicionado " << p1 << ", " << 10 << endl;
-    arvore.insert(p2, 20);
+    arvore.add(p2, 20);
     cout << "Adicionado " << p2 << ", " << 20 << endl;
-    arvore.insert(p3, 30);
+    arvore.add(p3, 30);
     cout << "Adicionado " << p3 << ", " << 30 << endl;
-    arvore.insert(p4, 40);
+    arvore.add(p4, 40);
     cout << "Adicionado " << p4 << ", " << 40 << endl;
-    arvore.insert(p5, 50);
+    arvore.add(p5, 50);
     cout << "Adicionado " << p5 << ", " << 50 << endl;
 
     cout << "Criando cópia da primeira árvore..." << endl;
@@ -250,9 +252,9 @@ void testAVL()
 
     // Teste de remoção
     cout << "\nRemovendo elementos:" << endl;
-    arvore.erase(p3);
+    arvore.remove(p3);
     cout << "Elemento " << p3 << " removido da árvore 1" << endl;
-    arvore_copia.erase(p2);
+    arvore_copia.remove(p2);
     cout << "Elemento " << p2 << " removido da árvore 2" << endl;
 
     // Teste do construtor de cópia
@@ -281,11 +283,9 @@ void testAVL()
         cout << "Tentativa de atualização do elemento " << p3 << endl;
     }
 
-
     cout << "\nTeste do operator[]" << endl;
     cout << "Valor de " << p2 << " :" << arvore[p2] << endl;
     cout << "Valor de " << p3 << " :" << arvore[p3] << endl;
-
 
     cout << "\nResultado das atualizações: " << endl;
     cout << "Árvore 1:" << endl;
@@ -319,19 +319,19 @@ void testRBT()
 
     // Teste de adição
     cout << "Adicionando elementos:" << endl;
-    arvore.insert(p1, 2);
+    arvore.add(p1, 2);
     cout << "Adicionado " << p1 << ", " << 2 << endl;
-    arvore.insert(p2, 20);
+    arvore.add(p2, 20);
     cout << "Adicionado " << p2 << ", " << 20 << endl;
-    arvore.insert(p3, 30);
+    arvore.add(p3, 30);
     cout << "Adicionado " << p3 << ", " << 30 << endl;
-    arvore.insert(p4, 40);
+    arvore.add(p4, 40);
     cout << "Adicionado " << p4 << ", " << 40 << endl;
-    arvore.insert(p5, 50);
-    cout << "Adicionado " << p5 << ", " << 50 << endl;  
+    arvore.add(p5, 50);
+    cout << "Adicionado " << p5 << ", " << 50 << endl;
 
     // Teste de cópia
-    RBT<Pares, int> arvore_copia(arvore); 
+    RBT<Pares, int> arvore_copia(arvore);
 
     // Estrutura da árvore
     cout << "\nÁrvore 1:" << endl;
@@ -375,7 +375,7 @@ void testRBT()
     cout << "\nTeste do operator[]" << endl;
     cout << "Valor de " << p2 << " :" << arvore[p2] << endl;
     cout << "Valor de " << p3 << " :" << arvore[p3] << endl;
-    
+
     cout << "\nResultado das atualizações: " << endl;
     cout << "Árvore 1:" << endl;
     arvore.show();
@@ -397,6 +397,41 @@ void testRBT()
     cout << "Árvore está vazia? " << (arvore.empty() ? "Sim" : "Não") << endl;
 }
 
+void testeDictionaryOpenHash()
+{
+    Dictionary_Hash<OpenAdressingHashTable, string, int> dicionario;
+
+    // Testanto a inserção
+    dicionario.insert("Pei", 2);
+
+    // Testando o retorno
+    cout << dicionario.at("Pei") << endl;
+
+    dicionario.show();
+
+    // Testando a remoção
+    dicionario.remove("Pei");
+    cout << "Concluido" << endl;
+}
+
+void testeDictionaryAVL()
+{
+    Dictionary_Tree<AVL, string, int> dicionario;
+    cout << "Testando inserção" << endl;
+    // Testanto a inserção
+    dicionario.insert("Pei", 2);
+    cout << "Testante update" << endl;
+    // Testando a atualização
+    dicionario.update("Pei", 10);
+    cout << "testando operator[]" << endl;
+    // Testando o retorno
+    cout << dicionario["Pei"] << endl;
+
+    dicionario.show();
+    // Testando a remoção
+    dicionario.remove("Pei");
+}
+
 int main(int argc, char *argv[])
 {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -405,19 +440,22 @@ int main(int argc, char *argv[])
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
     string str;
-    for(int i = 1; i <= argc; i++)
+    for (int i = 1; i <= argc; i++)
     {
         cout << argv[i] << endl;
         str = argv[i];
-        if(str == "teste_chained_hash")
+        if (str == "teste_chained_hash")
             testChainedHashTable();
-        else if(str == "teste_open_hash")
+        else if (str == "teste_open_hash")
             testOpenAdressingHashTable();
-        else if(str == "teste_avl")
+        else if (str == "teste_avl")
             testAVL();
-        else if(str == "teste_rbt")
+        else if (str == "teste_rbt")
             testRBT();
+        else if (str == "teste_dicionario_open_hash")
+            testeDictionaryOpenHash();
+        else if (str == "teste_dicionario_avl")
+            testeDictionaryAVL();
     }
     cout << "Bye!";
-    
 }

@@ -54,7 +54,7 @@ public:
     // Insere um novo nó(k,v) vermelho na posição correta da RBT,
     // Aciona o balanceamento com fixup_node() para preservar as propriedades
     // da árvore após a inserção
-    void insert(Key key, Value value);
+    void add(Key key, Value value);
 
     // Recebe chave k
     // Remove um nó(k) da RBT.
@@ -187,7 +187,7 @@ RBT<Key, Value>::RBT(const RBT &rbt)
 }
 
 template <typename Key, typename Value>
-void RBT<Key, Value>::insert(Key key, Value value)
+void RBT<Key, Value>::add(Key key, Value value)
 {
     Node_RBT<Key, Value> *pai = nil;
     Node_RBT<Key, Value> *node = m_root;
@@ -332,7 +332,7 @@ Value &RBT<Key, Value>::operator[](const Key &key)
     }
 
     if (atual == nil)
-        insert(key, Value());
+        add(key, Value());
 
     atual = m_root;
     while (atual != nil)

@@ -127,7 +127,7 @@ public:
 
     // Guarda todos os valores da hash table num vector
     // ordena ele, e mostra ele no terminal.
-    void show_ordened() const;
+    void show() const;
 
     // Destrutor da HashTable
     ~ChainedHashTable();
@@ -369,7 +369,7 @@ size_t ChainedHashTable<Key, Value, Hash>::get_cont_collisions() const
 }
 
 template <typename Key, typename Value, typename Hash>
-void ChainedHashTable<Key, Value, Hash>::show_ordened() const
+void ChainedHashTable<Key, Value, Hash>::show() const
 {
     std::vector<std::pair<Key, Value>> elementos;
 
