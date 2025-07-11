@@ -409,6 +409,10 @@ void testeDictionaryOpenHash()
 
     dicionario.show();
 
+    dicionario.update("Pei", 5);
+
+    cout << dicionario["Pei"] << endl;
+
     // Testando a remoção
     dicionario.remove("Pei");
     cout << "Concluido" << endl;
@@ -425,7 +429,7 @@ void testeDictionaryAVL()
     dicionario.update("Pei", 10);
     cout << "testando operator[]" << endl;
     // Testando o retorno
-    cout << dicionario["Pei"] << endl;
+    cout << dicionario.at("Pei") << endl;
 
     dicionario.show();
     // Testando a remoção

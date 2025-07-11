@@ -73,6 +73,9 @@ public:
     // Retorna false caso contrário
     bool contains(Key key);
 
+    // Retorna o tamanho do árvore
+    size_t size();
+
     // Sobrecarga de operador de indexação.
     // Se k corresponder a chave de um elemento da árvore , a funcao
     // retorna uma referencia ao seu valor mapeado. Caso contrario,
@@ -81,6 +84,10 @@ public:
     // referencia ao seu valor mapeado. Caso ocorra um erro durante a inserção
     // lança uma excessão de runtime_error
     Value &operator[](const Key &key);
+
+    // Recebe uma chave referência constante de chave e retorna uma referência
+    // ao seu valor associado, caso não encontre retorna uma excessão
+    Value &at(const Key &key);
 
     // Limpa a árvore
     void clear();
@@ -261,6 +268,26 @@ bool AVL<Key, Value>::contains(Key key)
 }
 
 template <typename Key, typename Value>
+size_t AVL<Key, Value>::size()
+{
+    size_t cont = 0;
+    std::stack<Node<Key, Value> *> p;
+    p.push(m_root);
+    while(!p.empty())
+    {
+        Node<Key, Value> *aux = p.top();
+        p.pop();
+        cont++;
+
+        if(aux->right != nullptr)
+            p.push(aux->right);
+        if(aux->left != nullptr)
+            p.push(aux->left);
+    }
+    return cont;
+}
+
+template <typename Key, typename Value>
 Value &AVL<Key, Value>::operator[](const Key &key)
 {
     Node<Key, Value> *atual = m_root;
@@ -289,6 +316,23 @@ Value &AVL<Key, Value>::operator[](const Key &key)
     }
 
     throw std::runtime_error("Erro durante a operação de indexação da AVL");
+}
+
+template <typename Key, typename Value>
+Value &AVL<Key, Value>::at(const Key &key)
+{
+    Node<Key, Value> *atual = m_root;
+    while (atual != nullptr)
+    {
+        if (cont_comp() && atual->value.first == key)
+            return atual->value.second;
+        else if (cont_comp() && atual->value.first > key)
+            atual = atual->left;
+        else
+            atual = atual->right;
+    }
+
+    throw std::invalid_argument("Essa chave não existe na AVL");
 }
 
 template <typename Key, typename Value>

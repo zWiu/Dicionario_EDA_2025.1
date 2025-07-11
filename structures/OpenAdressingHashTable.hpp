@@ -68,6 +68,11 @@ public:
     // atualiza o valor dela, se não tiver na tabela uma nova busca é realizada para inserir nela.
     bool add(const Key &k, const Value &v);
 
+    // Recebe uma chave e atualiza o valor associada aquela chave
+    // Caso a operação dê certo retorna true,
+    // caso a operação falhe retorna false
+    bool update(const Key &k, const Value &v);
+
     // Recebe como entrada uma chave k e retorna true
     // se e somente se a chave k estiver presente na tabela hash.
     bool contains(const Key &k);
@@ -278,6 +283,21 @@ bool OpenAdressingHashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
             cont_collisions++;
             i++;
         } while (i < m_table_size);
+        return false;
+    }
+}
+
+template <typename Key, typename Value, typename Hash>
+bool OpenAdressingHashTable<Key, Value, Hash>::update(const Key &k, const Value &v)
+{
+    try
+    {
+        size_t m = aux_search(k);
+        m_table[m].value.second = v;
+        return true;
+    }
+    catch(const std::invalid_argument &e)
+    {
         return false;
     }
 }
