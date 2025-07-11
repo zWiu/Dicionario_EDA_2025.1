@@ -46,5 +46,14 @@
         "typeinfo": "cpp",
         "list": "cpp"
     },
-    "C_Cpp.errorSquiggles": "disabled"
+    "terminal.integrated.profiles.windows": {
+        "MSYS2 MinGW64": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": [
+                "--login",
+                "-i"
+            ]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows":"MSYS2 MinGW64"
 }

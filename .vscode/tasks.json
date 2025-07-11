@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar com MSYS2",
+            "type": "shell",
+            "command": "C:/msys64/mingw64/bin/g++.exe",
+            "args": [
+                "-std=c++17",
+                "main.cpp",
+                "-o",
+                "programa.exe",
+                "-I",
+                "C:/msys64/mingw64/include",
+                "-L",
+                "C:/msys64/mingw64/lib",
+                "-licuuc",
+                "-licuin",
+                "-licudt"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
