@@ -1,6 +1,12 @@
 #include <iostream>
 #include <exception>
 #include <windows.h>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <unicode/unistr.h>
+#include <unicode/uchar.h>
+#include <unicode/ustring.h>    
 
 using namespace std;
 
@@ -74,6 +80,56 @@ namespace std
 #include "dictionary_tree.hpp"
 #include "dictionary_hash.hpp"
 
+void listArchive(string nameFile)
+{
+    ifstream file(nameFile);
+    if (!file.is_open())
+    {
+        cerr << "Falha ao abrir arquivo: " << nameFile << endl;
+        return;
+    }
+
+    string entrada;
+    vector<icu::UnicodeString> vec_unicode_names;
+    icu::UnicodeString tratada, normalizada;
+    
+    while (getline(file, entrada))
+    {
+        tratada.remove();
+        normalizada = icu::UnicodeString::fromUTF8(entrada);
+        for(int32_t i = 0; i < normalizada.length(); i++)
+        {
+            UChar c = normalizada.charAt(i);
+
+            if(u_isalpha(c)) {
+                tratada.append(c);
+            }
+
+            if(c == '-' && i > 0 && i < normalizada.length() - 1) {
+                if(u_isalpha(normalizada.charAt(i-1)) && u_isalpha(normalizada.charAt(i+1)))
+                    tratada.append(c);
+            }
+        
+            if(c == ' ' && !tratada.isEmpty()){
+                vec_unicode_names.push_back(tratada.toLower());
+                tratada.remove();
+            }
+        }
+        if(!tratada.isEmpty())
+            vec_unicode_names.push_back(tratada.toLower());
+    }
+
+    file.close();
+
+    for (const auto &uStr : vec_unicode_names)
+    {
+        string utf8str;
+        uStr.toUTF8String(utf8str);
+        int32_t codepointCount = u_countChar32(uStr.getBuffer(), uStr.length());
+
+        cout << "Número de caracteres em \"" << utf8str << "\": " << codepointCount << "\n";
+    }
+}
 void testChainedHashTable()
 {
     ChainedHashTable<Pares, int> tabela(7, 1.5);
@@ -444,7 +500,7 @@ int main(int argc, char *argv[])
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
     string str;
-    for (int i = 1; i <= argc; i++)
+    for (int i = 1; i < argc; i++)
     {
         cout << argv[i] << endl;
         str = argv[i];
@@ -460,6 +516,17 @@ int main(int argc, char *argv[])
             testeDictionaryOpenHash();
         else if (str == "teste_dicionario_avl")
             testeDictionaryAVL();
+        else if (str == "liste")
+        {
+            if (i + 1 < argc)
+            {
+                i++;
+                listArchive(argv[i]);
+            }
+            else
+            {
+                cerr << "Erro: 'liste' exige um argumento de caminho" << endl;
+            }
+        }
     }
-    cout << "Bye!";
 }

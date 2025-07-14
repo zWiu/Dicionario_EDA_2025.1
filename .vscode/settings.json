@@ -44,7 +44,8 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "fstream": "cpp"
     },
     "terminal.integrated.profiles.windows": {
         "MSYS2 MinGW64": {
