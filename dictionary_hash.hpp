@@ -11,8 +11,8 @@ class Dictionary_Hash
 {
 private:
     Structure<Key, Value, Hash> dictionary;
-    // constante de tempo para o ínicio 
-    const std::chrono::milliseconds start_time;
+    // Guarda o momento em que a estrutura foi criada
+    std::chrono::high_resolution_clock::time_point start_time;
 
 public:
     // Construtor vazio
@@ -117,7 +117,7 @@ void Dictionary_Hash<Structure, Key, Value, Hash>::show()
     std::cout << "Quantidade de elementos: " << dictionary.size() << std::endl;
     std::cout << "Comparações entre chaves realizadas(durante a construção do dicionário): " << dictionary.get_cont_comparator() << std::endl;
     std::cout << "Colisões ocorridas(durante a construção do dicionário): " << dictionary.get_cont_collisions() << std::endl;
-    std::cout << "Tempo de construção do dicionário(até o momento): " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-start_time) << std::endl << std::endl;
+    std::cout << "Tempo de construção do dicionário(até o momento): " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-start_time).count() << "ms" << std::endl << std::endl;
     dictionary.show();
 }
 

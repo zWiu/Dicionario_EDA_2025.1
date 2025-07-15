@@ -260,6 +260,11 @@ void OpenAdressingHashTable<Key, Value, Hash>::clear()
 template <typename Key, typename Value, typename Hash>
 bool OpenAdressingHashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
 {
+    if(load_factor() >= m_max_load_factor)
+    {
+        rehash(2 * m_table_size);
+    }
+
     try
     {
         size_t m = aux_search(k);
@@ -339,6 +344,7 @@ void OpenAdressingHashTable<Key, Value, Hash>::rehash(size_t m)
         std::vector<Element<Key, Value>> old_vec = m_table;
         m_number_of_elements = 0;
         m_table_size = new_table_size;
+        m_table.clear();
         m_table.resize(new_table_size);
         for (auto &elem : old_vec)
         {
@@ -504,7 +510,7 @@ size_t OpenAdressingHashTable<Key, Value, Hash>::get_next_prime(size_t x)
 template <typename Key, typename Value, typename Hash>
 size_t OpenAdressingHashTable<Key, Value, Hash>::hash_code(const Key &k, size_t i) const
 {
-    return (m_hashing(k) % m_table_size) + i * (1 + (m_hashing(k) % (m_table_size - 1))) % m_table_size;
+    return ((m_hashing(k) % m_table_size) + i * (1 + (m_hashing(k) % (m_table_size - 1)))) % m_table_size;
 }
 
 #endif

@@ -281,7 +281,6 @@ void RBT<Key, Value>::show_tree()
 template <typename Key, typename Value>
 void RBT<Key, Value>::show()
 {
-    std::cout << "RBT: ";
     Node_RBT<Key, Value> *aux = m_root;
     std::stack<Node_RBT<Key, Value> *> pilha;
     while (!pilha.empty() || aux != nil)
@@ -359,7 +358,7 @@ size_t RBT<Key, Value>::size()
     p.push(m_root);
     while(!p.empty())
     {
-        Node<Key, Value> *aux = p.top();
+        Node_RBT<Key, Value> *aux = p.top();
         p.pop();
         cont++;
 

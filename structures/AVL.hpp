@@ -225,7 +225,6 @@ void AVL<Key, Value>::show_tree()
 template <typename Key, typename Value>
 void AVL<Key, Value>::show()
 {
-    std::cout << "AVL: ";
     Node<Key, Value> *aux = m_root;
     std::stack<Node<Key, Value> *> p;
     while (!p.empty() || aux != nullptr)
