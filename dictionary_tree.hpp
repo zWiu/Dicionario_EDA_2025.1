@@ -3,12 +3,16 @@
 
 #include <utility>
 #include <list>
+#include <chrono>
 
 template <template <typename, typename> class Structure, typename Key, typename Value>
 class Dictionary_Tree
 {
 private:
     Structure<Key, Value> dictionary;
+
+    // constante de tempo para o ínicio 
+    const std::chrono::milliseconds start_time;
 
 public:
 
@@ -53,11 +57,12 @@ public:
 
 template <template <typename, typename> class Structure, typename Key, typename Value>
 Dictionary_Tree<Structure, Key,Value >::Dictionary_Tree()
-: dictionary{} {}
+: dictionary{}, start_time{std::chrono::high_resolution_clock::now()} {}
 
 template <template <typename, typename> class Structure, typename Key, typename Value>
 Dictionary_Tree<Structure, Key,Value >::Dictionary_Tree(std::list<std::pair<Key, Value>> initial_list)
 {
+    start_time = std::chrono::high_resolution_clock::now();
     for(const auto& par : initial_list)
     {
         dictionary.add(par.first, par.second);
@@ -111,6 +116,10 @@ size_t Dictionary_Tree<Structure,Key,Value>::size()
 template <template <typename, typename> class Structure, typename Key, typename Value>
 void Dictionary_Tree<Structure,Key,Value>::show()
 {
+    std::cout << "Quantidade de elementos: " << dictionary.size() << std::endl;
+    std::cout << "Comparações entre chaves realizadas(durante a construção do dicionário): " << dictionary.get_cont_comparator() << std::endl;
+    std::cout << "Rotações ocorridas(durante a construção do dicionário): " << dictionary.get_cont_rotation() << std::endl;
+    std::cout << "Tempo de construção do dicionário(até o momento): " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-start_time) << "ms" << std::endl << std::endl;
     dictionary.show();
 }
 
