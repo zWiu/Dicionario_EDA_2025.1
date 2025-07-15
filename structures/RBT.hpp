@@ -296,12 +296,8 @@ void RBT<Key, Value>::show()
             aux = pilha.top();
             pilha.pop();
 
-            std::cout << (aux->color == RED ? "\033[31m" : "\033[30m") << "(" << aux->value.first << ", " << aux->value.second << ")" << "\033[0m";
+            std::cout  << "(" << aux->value.first << ", " << aux->value.second << ")" << std::endl;
             aux = aux->right;
-            if (!pilha.empty() || aux != nil)
-                std::cout << ", ";
-            else
-                std::cout << std::endl;
         }
     }
 }

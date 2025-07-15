@@ -239,12 +239,8 @@ void AVL<Key, Value>::show()
         {
             aux = p.top();
             p.pop();
-            std::cout << "(" << aux->value.first << ", " << aux->value.second << ")";
+            std::cout << "(" << aux->value.first << ", " << aux->value.second << ")" << std::endl;
             aux = aux->right;
-            if (!p.empty() || aux != nullptr)
-                std::cout << ", ";
-            else
-                std::cout << std::endl;
         }
     }
 }

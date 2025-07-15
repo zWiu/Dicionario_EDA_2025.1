@@ -443,11 +443,9 @@ void OpenAdressingHashTable<Key, Value, Hash>::show() const
     for (size_t i = 0; i < elementos.size(); i++)
     {
         const auto &par = elementos[i];
-        std::cout << "(" << par.first << ", " << par.second << ") ";
-        if(i != elementos.size()-1)
-            std::cout << ", ";
+        std::cout << "(" << par.first << ", " << par.second << ")" << std::endl;
     }
-    std::cout << std::endl;
+
 }
 
 template <typename Key, typename Value, typename Hash>
