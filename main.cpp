@@ -325,27 +325,6 @@ void dictionary_Chained_Hash(string name_file)
     new_file.close();
 }
 
-void testeDictionaryOpenHash()
-{
-    Dictionary_Hash<OpenAdressingHashTable, string, int> dicionario;
-
-    // Testanto a inserção
-    dicionario.insert("Pei", 2);
-
-    // Testando o retorno
-    cout << dicionario.at("Pei") << endl;
-
-    dicionario.show();
-
-    dicionario.update("Pei", 5);
-
-    cout << dicionario["Pei"] << endl;
-
-    // Testando a remoção
-    dicionario.remove("Pei");
-    cout << "Concluido" << endl;
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -422,10 +401,6 @@ int main(int argc, char *argv[])
             {
                 cerr << "Erro: 'dictionary...' exige um argumento de caminho" << endl;
             }
-        }
-        else if(str == "test")
-        {
-            testeDictionaryOpenHash();
         }
     }
 }
