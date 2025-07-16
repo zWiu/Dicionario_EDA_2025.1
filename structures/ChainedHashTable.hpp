@@ -259,7 +259,7 @@ bool ChainedHashTable<Key, Value, Hash>::add(const Key &k, const Value &v)
             return false;
 
     if (!m_table[slot].empty())
-        cont_collisions += bucket_size(slot);
+        cont_collisions++;
 
     m_table[slot].push_back({k, v});
     m_number_of_elements++;
