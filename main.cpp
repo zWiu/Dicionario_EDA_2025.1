@@ -92,7 +92,7 @@ void dictionary_AVL(string name_file)
 
     cout.rdbuf(antigo);
 
-    ofstream new_file("resultados/" + name_file + "_dictionary_avl.txt");
+    ofstream new_file("resultados/" +  name_file + "/" + name_file + "_dictionary_avl.txt");
 
     if (!new_file.is_open())
     {
