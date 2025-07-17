@@ -10,7 +10,8 @@
 #include <unicode/ustring.h>
 
 using namespace std;
-namespace std{
+namespace std
+{
     template <>
     struct hash<icu::UnicodeString>
     {
@@ -69,7 +70,7 @@ void dictionary_AVL(string name_file)
                     tratada.append(c);
             }
 
-            if (c == ' ' && !tratada.isEmpty())
+            if (u_isspace(c)   && !tratada.isEmpty())
             {
                 tratada = tratada.toLower();
                 avl_unicode[tratada] = avl_unicode[tratada] + 1;
@@ -92,7 +93,7 @@ void dictionary_AVL(string name_file)
 
     cout.rdbuf(antigo);
 
-    ofstream new_file("resultados/" +  name_file + "/" + name_file + "_dictionary_avl.txt");
+    ofstream new_file("resultados/" + name_file + "_dictionary_avl.txt");
 
     if (!new_file.is_open())
     {
@@ -325,7 +326,6 @@ void dictionary_Chained_Hash(string name_file)
     new_file.close();
 }
 
-
 int main(int argc, char *argv[])
 {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
                 cerr << "Erro: 'dictionary...' exige um argumento de caminho" << endl;
             }
         }
-        else if(str == "dictionary_avl")
+        else if (str == "dictionary_avl")
         {
             if (i + 1 < argc)
             {
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
                 cerr << "Erro: 'dictionary...' exige um argumento de caminho" << endl;
             }
         }
-        else if(str == "dictionary_rbt")
+        else if (str == "dictionary_rbt")
         {
             if (i + 1 < argc)
             {
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
                 cerr << "Erro: 'dictionary...' exige um argumento de caminho" << endl;
             }
         }
-        else if(str == "dictionary_chained_hash")
+        else if (str == "dictionary_chained_hash")
         {
             if (i + 1 < argc)
             {
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
                 cerr << "Erro: 'dictionary...' exige um argumento de caminho" << endl;
             }
         }
-        else if(str == "dictionary_open_adress_hash")
+        else if (str == "dictionary_open_adress_hash")
         {
             if (i + 1 < argc)
             {
