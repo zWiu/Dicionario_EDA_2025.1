@@ -19,7 +19,7 @@ class ChainedHashTable
 {
 public:
     // Construtor: cria uma tabela hash com um numero primo de slot
-    ChainedHashTable(size_t size_table = 19, float load_factor = 1.0);
+    ChainedHashTable(size_t size_table = 19, float load_factor = 0.75);
 
     // Retorna o número de elemento da tabela hash
     size_t size() const;

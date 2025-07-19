@@ -47,6 +47,9 @@ public:
     // Mostra todos os valores do dicionario, ordenados pela chave
     void show();
 
+    // Retorna a duração do dicionario
+    size_t get_duration();
+
     // Esvazia o dicionário.
     void clear();
 
@@ -117,14 +120,22 @@ void Dictionary_Hash<Structure, Key, Value, Hash>::show()
     std::cout << "Quantidade de elementos: " << dictionary.size() << std::endl;
     std::cout << "Comparações entre chaves realizadas(durante a construção do dicionário): " << dictionary.get_cont_comparator() << std::endl;
     std::cout << "Colisões ocorridas(durante a construção do dicionário): " << dictionary.get_cont_collisions() << std::endl;
-    std::cout << "Tempo de construção do dicionário(até o momento): " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-start_time).count() << "ms" << std::endl << std::endl;
+    std::cout << "Tempo de construção do dicionário(até o momento): " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count() << "ms" << std::endl
+              << std::endl;
     dictionary.show();
+}
+
+template <template <typename, typename, typename> class Structure, typename Key, typename Value, typename Hash>
+size_t Dictionary_Hash<Structure, Key, Value, Hash>::get_duration()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start_time).count();
 }
 
 template <template <typename, typename, typename> class Structure, typename Key, typename Value, typename Hash>
 void Dictionary_Hash<Structure, Key, Value, Hash>::clear()
 {
     dictionary.clear();
+    start_time = std::chrono::high_resolution_clock::now();
 }
 
 template <template <typename, typename, typename> class Structure, typename Key, typename Value, typename Hash>

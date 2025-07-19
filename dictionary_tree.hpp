@@ -48,6 +48,9 @@ public:
     // Mostra todos os valores do dicionario, ordenados pela chave
     void show();
 
+    // Retorna a duração do dicionario
+    size_t get_duration();
+
     // Esvazia o dicionário.
     void clear();
 
@@ -125,9 +128,16 @@ void Dictionary_Tree<Structure,Key,Value>::show()
 
 
 template <template <typename, typename> class Structure, typename Key, typename Value>
+size_t Dictionary_Tree<Structure,Key,Value>::get_duration()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()-start_time).count();
+}
+
+template <template <typename, typename> class Structure, typename Key, typename Value>
 void Dictionary_Tree<Structure,Key,Value>::clear()
 {
     dictionary.clear();
+    start_time = std::chrono::high_resolution_clock::now();
 }
 
 template <template <typename, typename> class Structure, typename Key, typename Value>
